@@ -4,8 +4,9 @@ from BaseClasses import ItemClassification, Region, Tutorial
 from worlds.AutoWorld import World, WebWorld
 
 from .Items import TailsAdvItem, item_data_table, item_table
-from .Locations import location_data_table, location_table
+from .Locations import TailsAdvLocation, location_data_table, location_table
 from .Options import TailsAdvOptions, tailsadv_option_groups
+from .Regions import region_data_table
 
 class TailsAdvWebWorld(WebWorld):
     theme = "grass"
@@ -47,15 +48,25 @@ class TailsAdvWorld(World):
         self.multiworld.itempool += item_pool
     
     def create_regions(self) -> None:
-        # Create regions (TODO: define regions)
-        region = Region("Menu", self.player, self.multiworld)
-        self.multiworld.regions.append(region)
+        # Create regions
+        for region_key in region_data_table.keys():
+            region = Region(region_key.name, self.player, self.multiworld)
+            self.multiworld.regions.append(region)
 
         # Create locations
-        region.add_locations({
-            name: data.code for name, data in location_data_table.items() if data.can_create
-        })
+        for region_key, region_data in region_data_table.items():
+            region = self.get_region(region_key.name)
+            region.add_locations({
+                location_name: location_data.code
+                  for location_name, location_data
+                  in location_data_table.items()
+                  if location_data.can_create and location_data.region == region_key
+            }, TailsAdvLocation)
+            region.add_exits(list(region.name for region in region_data_table[region_key].connecting_regions))
     
     def get_filler_item_name(self) -> str:
-        filler_items = list(name for name, data in item_data_table.items() if data.type == ItemClassification.filler)
+        filler_items = list(name
+                             for name, data
+                             in item_data_table.items()
+                             if data.type == ItemClassification.filler)
         return self.multiworld.random.choice(filler_items)
