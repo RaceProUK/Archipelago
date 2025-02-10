@@ -5,22 +5,23 @@ from worlds.AutoWorld import World, WebWorld
 
 from .Items import TailsAdvItem, item_data_table, item_table
 from .Locations import location_data_table, location_table
-from .Options import TailsAdvOptions
+from .Options import TailsAdvOptions, tailsadv_option_groups
 
 class TailsAdvWebWorld(WebWorld):
     theme = "grass"
     setup_en = Tutorial(
         tutorial_name="Start Guide",
-        description="A guide to Tails Adventure",
+        description="A guide to setting up the Tails Adventure randomizer connected to an Archipelago Multiworld.",
         language="English",
         file_name="guide_en.md",
         link="guide/en",
         authors=["RaceProUK"]
     )
     tutorials = [setup_en]
+    option_groups = tailsadv_option_groups
 
 class TailsAdvWorld(World):
-    """Tails Adventure"""
+    """Tails Adventure (テイルスアドベンチャー) is a mini-Metroidvania starring Miles 'Tails' Prower, released in 1995 for the Sega Game Gear"""
     game = "Tails Adventure"
     web = TailsAdvWebWorld()
     options: TailsAdvOptions
