@@ -2,7 +2,7 @@ from enum import Enum
 from typing import Dict, List, NamedTuple
 
 TailsAdvRegion = Enum("Region", [
-    ("Menu", "Menu"),
+    ("Menu", "Tails' House"),
     ("PoloyForest", "Poloy Forest"),
     ("VolcanicTunnel", "Volcanic Tunnel"),
     ("PollyMountain1", "Polly Mountain 1"),
@@ -23,12 +23,12 @@ class TailsAdvRegionData(NamedTuple):
 region_data_table: Dict[TailsAdvRegion, TailsAdvRegionData] = {
     TailsAdvRegion.Menu: TailsAdvRegionData([TailsAdvRegion.PoloyForest,
                                              TailsAdvRegion.LakeRocky]),
-    TailsAdvRegion.PoloyForest: TailsAdvRegionData([TailsAdvRegion.VolcanicTunnel]),
+    TailsAdvRegion.PoloyForest: TailsAdvRegionData([TailsAdvRegion.VolcanicTunnel,
+                                                    TailsAdvRegion.CaronForest]),
     TailsAdvRegion.VolcanicTunnel: TailsAdvRegionData([TailsAdvRegion.PollyMountain1]),
     TailsAdvRegion.PollyMountain1: TailsAdvRegionData([]),
     TailsAdvRegion.LakeRocky: TailsAdvRegionData([TailsAdvRegion.CavernIsland,
                                                   TailsAdvRegion.GreenIsland,
-                                                  TailsAdvRegion.CaronForest,
                                                   TailsAdvRegion.LakeCrystal,
                                                   TailsAdvRegion.CocoIsland]),
     TailsAdvRegion.CavernIsland: TailsAdvRegionData([]),

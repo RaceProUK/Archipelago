@@ -62,7 +62,7 @@ class TailsAdvWorld(World):
                   in location_data_table.items()
                   if location_data.can_create and location_data.region == region_key
             }, TailsAdvLocation)
-            region.add_exits(list(region.name for region in region_data_table[region_key].connecting_regions))
+            region.add_exits(list(region.name for region in region_data.connecting_regions))
     
     def get_filler_item_name(self) -> str:
         filler_items = list(name
