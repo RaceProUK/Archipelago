@@ -7,6 +7,7 @@ from .Items import TailsAdvItem, item_data_table, item_table
 from .Locations import TailsAdvLocation, location_data_table, location_table
 from .Options import TailsAdvOptions, tailsadv_option_groups
 from .Regions import region_data_table
+from .Rules import set_rules
 
 class TailsAdvWebWorld(WebWorld):
     theme = "grass"
@@ -70,3 +71,6 @@ class TailsAdvWorld(World):
                              in item_data_table.items()
                              if data.type == ItemClassification.filler)
         return self.multiworld.random.choice(filler_items)
+    
+    def set_rules(self):
+        set_rules(self.player, self.multiworld, self.options)

@@ -35,7 +35,7 @@ item_data_table: Dict[str, TailsAdvItemData] = {
     "Extra Armor": TailsAdvItemData(21, ItemClassification.progression),
     "Anti Air Missile": TailsAdvItemData(22, ItemClassification.progression),
     "Spark": TailsAdvItemData(23, ItemClassification.useful),
-    "Mine": TailsAdvItemData(24, ItemClassification.useful),
+    "Mine": TailsAdvItemData(24, ItemClassification.progression),
     "Rocket Booster": TailsAdvItemData(25, ItemClassification.progression),
     "Remote Robot": TailsAdvItemData(26, ItemClassification.progression),
     "Blue Chaos Emerald": TailsAdvItemData(27, ItemClassification.useful),
