@@ -1,19 +1,23 @@
-from BaseClasses import MultiWorld
+from typing import Callable
+
+from BaseClasses import MultiWorld, CollectionState
 from worlds.generic.Rules import set_rule
 from .Options import TailsAdvOptions
 
+CollectionRule = Callable[[CollectionState], bool]
+
 def set_rules(player: int, multiworld: MultiWorld, options: TailsAdvOptions):
     # Conditions
-    has_remote_robot = lambda state: state.has("Remote Robot", player, 1)
-    has_remote_bomb = lambda state: state.has("Remote Bomb", player, 1)
-    has_large_bomb = lambda state: state.has("Large Bomb", player, 1)
-    has_napalm_bomb = lambda state: state.has("Napalm Bomb", player, 1)
-    has_anti_air = lambda state: state.has("Anti Air Missile", player, 1)
-    has_extra_speed = lambda state: state.has("Extra Speed", player, 1)
-    has_mine = lambda state: state.has("Mine", player, 1)
-    has_extra_armor = lambda state: state.has("Extra Armor", player, 1)
-    has_rocket_booster = lambda state: state.has("Rocket Booster", player, 1)
-    has_night_vision = lambda state: state.has("Night Vision", player, 1)
+    has_remote_robot: CollectionRule = lambda state: state.has("Remote Robot", player)
+    has_remote_bomb: CollectionRule = lambda state: state.has("Remote Bomb", player)
+    has_large_bomb: CollectionRule = lambda state: state.has("Large Bomb", player)
+    has_napalm_bomb: CollectionRule = lambda state: state.has("Napalm Bomb", player)
+    has_anti_air: CollectionRule = lambda state: state.has("Anti Air Missile", player)
+    has_extra_speed: CollectionRule = lambda state: state.has("Extra Speed", player)
+    has_mine: CollectionRule = lambda state: state.has("Mine", player)
+    has_extra_armor: CollectionRule = lambda state: state.has("Extra Armor", player)
+    has_rocket_booster: CollectionRule = lambda state: state.has("Rocket Booster", player)
+    has_night_vision: CollectionRule = lambda state: state.has("Night Vision", player)
 
     # Regions
     set_rule(multiworld.get_entrance("Menu -> LakeRocky", player), has_remote_robot)
@@ -38,12 +42,15 @@ def set_rules(player: int, multiworld: MultiWorld, options: TailsAdvOptions):
     # Locations
     set_rule(multiworld.get_location("Speed Boots", player), has_remote_robot)
     set_rule(multiworld.get_location("Radio", player), has_remote_robot)
-    set_rule(multiworld.get_location("Radio", player), has_remote_robot)
     set_rule(multiworld.get_location("Remote Bomb", player), has_remote_robot)
 
     set_rule(multiworld.get_location("Green Chaos Emerald", player), has_remote_bomb)
     set_rule(multiworld.get_location("Napalm Bomb", player), has_remote_bomb)
     set_rule(multiworld.get_location("Anti Air Missile", player), has_remote_bomb)
 
-    set_rule(multiworld.get_location("Napalm Bomb", player),
+    set_rule(multiworld.get_location("Rocket Booster", player), has_large_bomb)
+
+    set_rule(multiworld.get_location("Spark", player), has_napalm_bomb)
+
+    set_rule(multiworld.get_location("Extra Armor", player),
              lambda state: has_remote_bomb(state) and has_large_bomb(state))
