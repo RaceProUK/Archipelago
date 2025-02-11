@@ -1,3 +1,6 @@
+import settings
+import typing
+
 from typing import List
 
 from BaseClasses import ItemClassification, Region, Tutorial
@@ -8,6 +11,17 @@ from .Locations import TailsAdvLocation, location_data_table, location_table
 from .Options import TailsAdvOptions, tailsadv_option_groups
 from .Regions import region_data_table
 from .Rules import set_rules
+from .ROM import generate_output
+
+class TailsAdvSettings(settings.Group):
+    class RomFile(settings.UserFilePath):
+        """File name of the Tails Adventure ROM"""
+        description = "Tails Adventure ROM File"
+        copy_to = "Tails Adventure (U).gg"
+        md5_cartridge = "a8bdb1beed088ff83c725c5af6b85e1f"
+        md5_vc = "c2fe111a6e569ec6d58b9ecc32de0e12"
+        md5s = [md5_cartridge, md5_vc]
+    rom_file: RomFile = RomFile(RomFile.copy_to)
 
 class TailsAdvWebWorld(WebWorld):
     theme = "grass"
@@ -26,6 +40,7 @@ class TailsAdvWorld(World):
     """Tails Adventure (テイルスアドベンチャー) is a mini-Metroidvania starring Miles 'Tails' Prower, released in 1995 for the Sega Game Gear"""
     game = "Tails Adventure"
     web = TailsAdvWebWorld()
+    settings: typing.ClassVar[TailsAdvSettings]
     options: TailsAdvOptions
     options_dataclass = TailsAdvOptions
     location_name_to_id = location_table
@@ -74,3 +89,6 @@ class TailsAdvWorld(World):
     
     def set_rules(self):
         set_rules(self.player, self.multiworld, self.options)
+    
+    def generate_output(self, output_directory):
+        generate_output(self, output_directory)
