@@ -11,17 +11,18 @@ from .Locations import TailsAdvLocation, location_data_table, location_table
 from .Options import TailsAdvOptions, tailsadv_option_groups
 from .Regions import region_data_table
 from .Rules import set_rules
-from .ROM import generate_output
+from .ROM import ROMType, generate_output
 
 class TailsAdvSettings(settings.Group):
     class RomFile(settings.UserFilePath):
         """File name of the Tails Adventure ROM"""
         description = "Tails Adventure ROM File"
         copy_to = "Tails Adventure (U).gg"
-        md5_cartridge = "a8bdb1beed088ff83c725c5af6b85e1f" # The ROMs in SADX and Gems are identical
-        md5_vc3ds = "c2fe111a6e569ec6d58b9ecc32de0e12"     # But the 3DS VC version is patched
-        md5_origins = "9a2892a5c14b52d517ec74685365314f"   # As is the Origins version but differently
-        md5s = [md5_cartridge, md5_vc3ds, md5_origins]
+        md5s = [
+            ROMType.Original.value,
+            ROMType.VC3DS.value,
+            ROMType.Origins.value
+        ]
     rom_file: RomFile = RomFile(RomFile.copy_to)
 
 class TailsAdvWebWorld(WebWorld):
