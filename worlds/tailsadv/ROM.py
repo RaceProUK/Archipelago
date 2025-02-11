@@ -6,7 +6,7 @@ from typing import List
 
 from worlds.AutoWorld import World
 
-def generate_output(world: World, output_directory: str):
+def generate_output(world: World, output_directory: str) -> None:
     safe_slot_name = world.multiworld.get_file_safe_player_name(world.player).replace(" ", "_")
     rom_name = f"AP_{world.multiworld.seed_name}_P{world.player}_{safe_slot_name}.gg"
     rom_path = os.path.join(output_directory, rom_name)

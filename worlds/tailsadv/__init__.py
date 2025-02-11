@@ -88,8 +88,8 @@ class TailsAdvWorld(World):
                              if data.type == ItemClassification.filler)
         return self.multiworld.random.choice(filler_items)
     
-    def set_rules(self):
+    def set_rules(self) -> None:
         set_rules(self.player, self.multiworld, self.options)
     
-    def generate_output(self, output_directory):
+    def generate_output(self, output_directory) -> None:
         generate_output(self, output_directory)

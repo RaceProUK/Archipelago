@@ -6,7 +6,7 @@ from .Options import TailsAdvOptions
 
 CollectionRule = Callable[[CollectionState], bool]
 
-def set_rules(player: int, multiworld: MultiWorld, options: TailsAdvOptions):
+def set_rules(player: int, multiworld: MultiWorld, options: TailsAdvOptions) -> None:
     # Conditions
     has_remote_robot: CollectionRule = lambda state: state.has("Remote Robot", player)
     has_remote_bomb: CollectionRule = lambda state: state.has("Remote Bomb", player)
