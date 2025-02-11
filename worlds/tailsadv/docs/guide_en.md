@@ -12,7 +12,7 @@ As the BizHawk emulator is used for this game, this guide only applies to Window
   - This is part of [Archipelago](https://github.com/ArchipelagoMW/Archipelago/releases) itself
 - A valid Tails Adventure ROM file legally obtained from either:
   - A genuine Tails Adventure Game Gear cartridge, or
-  - An official re-release e.g. Sonic Adventure DX, Sonic Mega Collection Plus, or Sonic Origins
+  - An official re-release e.g. Sonic Adventure DX, Sonic Gems Collection, or Sonic Origins
 
 ## Configuring BizHawk
 
