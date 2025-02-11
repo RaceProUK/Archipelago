@@ -18,9 +18,10 @@ class TailsAdvSettings(settings.Group):
         """File name of the Tails Adventure ROM"""
         description = "Tails Adventure ROM File"
         copy_to = "Tails Adventure (U).gg"
-        md5_cartridge = "a8bdb1beed088ff83c725c5af6b85e1f"
-        md5_vc = "c2fe111a6e569ec6d58b9ecc32de0e12"
-        md5s = [md5_cartridge, md5_vc]
+        md5_cartridge = "a8bdb1beed088ff83c725c5af6b85e1f" # Also included in SADX
+        md5_vc3ds = "c2fe111a6e569ec6d58b9ecc32de0e12"
+        md5_origins = "9a2892a5c14b52d517ec74685365314f"
+        md5s = [md5_cartridge, md5_vc3ds, md5_origins]
     rom_file: RomFile = RomFile(RomFile.copy_to)
 
 class TailsAdvWebWorld(WebWorld):
