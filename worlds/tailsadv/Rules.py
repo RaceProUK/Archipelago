@@ -54,3 +54,6 @@ def set_rules(player: int, multiworld: MultiWorld, options: TailsAdvOptions):
 
     set_rule(multiworld.get_location("Extra Armor", player),
              lambda state: has_remote_bomb(state) and has_large_bomb(state))
+    
+    # Completion
+    multiworld.completion_condition[player] = lambda state: state.can_reach("BattleFortress2", "Region", player)
