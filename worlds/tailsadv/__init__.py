@@ -12,6 +12,7 @@ from .Options import TailsAdvOptions, tailsadv_option_groups
 from .Regions import region_data_table
 from .Rules import set_rules
 from .ROM import ROMType, generate_output
+from . import Client
 
 class TailsAdvSettings(settings.Group):
     class RomFile(settings.UserFilePath):

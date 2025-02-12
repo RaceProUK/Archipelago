@@ -4,10 +4,9 @@ import time
 
 from NetUtils import ClientStatus
 from worlds._bizhawk.client import BizHawkClient
-from worlds._bizhawk import read, write, guarded_write
-
-from .Locations import location_data
 from .ROM import ROMType
+
+import worlds._bizhawk as bizhawk
 
 logger = logging.getLogger("Client")
 
@@ -29,7 +28,7 @@ class TailsAdvClient(BizHawkClient):
             return True
         return False
     
-    def on_package(self, ctx, cmd, args) -> None:
+    def on_package(self, ctx, cmd: str, args: dict) -> None:
         if cmd == "RoomInfo":
             ctx.seed_name = args["seed_name"]
 
