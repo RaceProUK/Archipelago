@@ -16,8 +16,7 @@ class TailsAdvClient(BizHawkClient):
     game = "Tails Adventure"
 
     async def validate_rom(self, ctx) -> bool:
-        print(ctx.rom_hash)
-        if ctx.rom_hash in [
+        if ctx.rom_hash.lower() in [
             ROMType.Original.value,
             ROMType.VC3DS.value,
             ROMType.Origins.value
