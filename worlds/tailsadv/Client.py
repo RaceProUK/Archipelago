@@ -60,12 +60,12 @@ class TailsAdvClient(BizHawkClient):
             ctx.seed_name = args["seed_name"]
 
     async def game_watcher(self, ctx) -> None:
-        def set_data_message(key: str, value: any):
+        def set_data_message(key: str, value: any, default: any = None, want_reply: bool = False):
             return {
                 "cmd": "Set",
                 "key": f"tailsadv_{ctx.slot}_{ctx.team}_{key}",
-                "default": 0,
-                "want_reply": True,
+                "default": default,
+                "want_reply": want_reply,
                 "operations": [{ "operation": "replace", "value": value }]
             }
 
