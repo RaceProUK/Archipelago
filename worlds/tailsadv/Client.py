@@ -32,7 +32,7 @@ class TailsAdvClient(BizHawkClient):
             ctx.seed_name = args["seed_name"]
 
     async def set_auth(self, ctx) -> None:
-        ctx.auth = self.player_name
+        pass
 
     async def game_watcher(self, ctx) -> None:
         if not ctx.server or not ctx.server.socket.open or ctx.server.socket.closed:
