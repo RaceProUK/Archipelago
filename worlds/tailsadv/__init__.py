@@ -1,3 +1,4 @@
+import os
 import settings
 import typing
 
@@ -11,7 +12,7 @@ from .Locations import TailsAdvLocation, location_data_table, location_table
 from .Options import TailsAdvOptions, tailsadv_option_groups
 from .Regions import region_data_table
 from .Rules import set_rules
-from .ROM import ROMType, generate_output
+from .ROM import ROMType, TailsAdvPatch
 from . import Client
 
 class TailsAdvSettings(settings.Group):
@@ -94,4 +95,6 @@ class TailsAdvWorld(World):
         set_rules(self.player, self.multiworld, self.options)
     
     def generate_output(self, output_directory) -> None:
-        generate_output(self, output_directory)
+        patch = TailsAdvPatch(player = self.player, player_name = self.player_name)
+        out_file_name = self.multiworld.get_out_file_name_base(self.player)
+        patch.write(os.path.join(output_directory, f"{out_file_name}{patch.patch_file_ending}"))
