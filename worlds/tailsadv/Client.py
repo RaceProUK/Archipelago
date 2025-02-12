@@ -60,6 +60,15 @@ class TailsAdvClient(BizHawkClient):
             ctx.seed_name = args["seed_name"]
 
     async def game_watcher(self, ctx) -> None:
+        def set_data_message(key: str, value: any):
+            return {
+                "cmd": "Set",
+                "key": f"tailsadv_{ctx.slot}_{ctx.team}_{key}",
+                "default": 0,
+                "want_reply": True,
+                "operations": [{ "operation": "replace", "value": value }]
+            }
+
         if not ctx.server or not ctx.server.socket.open or ctx.server.socket.closed:
             return
         
@@ -77,12 +86,12 @@ class TailsAdvClient(BizHawkClient):
         room_id = data[DataKeys.RoomID][0]
 
         messages = []
-        if ctx.current_items_page_1 != items_page_1: messages.append(create_set_data_message("items_page_1", ctx.slot, ctx.team, items_page_1))
-        if ctx.current_items_page_2 != items_page_1: messages.append(create_set_data_message("items_page_2", ctx.slot, ctx.team, items_page_2))
-        if ctx.current_items_page_3 != items_page_1: messages.append(create_set_data_message("items_page_3", ctx.slot, ctx.team, items_page_3))
-        if ctx.current_items_page_sub != items_page_1: messages.append(create_set_data_message("items_page_sub", ctx.slot, ctx.team, items_page_sub))
-        if ctx.level_id != level_id: messages.append(create_set_data_message("level_id", ctx.slot, ctx.team, level_id))
-        if ctx.room_id != room_id: messages.append(create_set_data_message("room_id", ctx.slot, ctx.team, room_id))
+        if ctx.current_items_page_1 != items_page_1: messages.append(set_data_message("items_page_1", items_page_1))
+        if ctx.current_items_page_2 != items_page_2: messages.append(set_data_message("items_page_2", items_page_2))
+        if ctx.current_items_page_3 != items_page_3: messages.append(set_data_message("items_page_3", items_page_3))
+        if ctx.current_items_page_sub != items_page_sub: messages.append(set_data_message("items_page_sub", items_page_sub))
+        if ctx.level_id != level_id: messages.append(set_data_message("level_id", level_id))
+        if ctx.room_id != room_id: messages.append(set_data_message("room_id", room_id))
         if messages.count() > 0:
             await ctx.send_msgs(messages)
         
@@ -90,12 +99,3 @@ class TailsAdvClient(BizHawkClient):
         if data[DataKeys.CurrentHealth][0] == 0xff and not ctx.finished_game:
             await ctx.send_msgs([{"cmd": "StatusUpdate", "status": ClientStatus.CLIENT_GOAL}])
             ctx.finished_game = True
-    
-def create_set_data_message(key: str, slot: int, team: int, value: int):
-    return {
-        "cmd": "Set",
-        "key": f"tailsadv_{slot}_{team}_{key}",
-        "default": 0,
-        "want_reply": True,
-        "operations": [{ "operation": "replace", "value": value }]
-    }
