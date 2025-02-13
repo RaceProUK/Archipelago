@@ -42,7 +42,7 @@ session_state_data_locations = {
     DataKeys.CurrentHealth: (0x1039, 0x01),
     DataKeys.LevelID: (0x12aa, 0x01),
     DataKeys.RoomID: (0x12ab, 0x01),
-    DataKeys.ItemPickup: (0x12ab, 0x01)
+    DataKeys.ItemPickup: (0x12f5, 0x01)
 }
 
 item_page_bit_map = {
