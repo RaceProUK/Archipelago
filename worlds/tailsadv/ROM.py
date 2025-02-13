@@ -37,12 +37,13 @@ class TailsAdvPatcher(APPatchExtension):
     
     @staticmethod
     def rom_to_ap(rom: bytes) -> bytes:
+        rom = bytearray(rom)
         # Disable Game Over screen by deducting zero from the life count on death
         # Specifically, 0x1217 is the operand to the opcode at 0x1216
         # The full Z80 instruction is `sub $01`, which we patch to `sub $00`
         # Did you know Tails Adventure has a life system? You do now!
-        rom[0x1217] = 0x00
-        return rom
+        # rom[0x1217] = 0x00
+        return bytes(rom)
     
     @staticmethod
     def vc3ds_to_original(rom: bytes) -> bytes:
