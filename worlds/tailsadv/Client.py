@@ -45,7 +45,7 @@ session_state_data_locations = {
 }
 
 item_page_bit_map = {
-    data.id: (data.page, data.bit) for data in item_data_table.values()
+    data.code: (data.page, data.bit) for data in item_data_table.values()
 }
 
 class TailsAdvClient(BizHawkClient):
