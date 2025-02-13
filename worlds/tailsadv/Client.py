@@ -73,12 +73,12 @@ class TailsAdvClient(BizHawkClient):
             case "RoomInfo":
                 ctx.seed_name = args["seed_name"]
             case "Connected":
-                ctx.set_notify([
-                    stored_data_key(ctx.team, ctx.slot, DataKeys.ItemsPage1.value()),
-                    stored_data_key(ctx.team, ctx.slot, DataKeys.ItemsPage2.value()),
-                    stored_data_key(ctx.team, ctx.slot, DataKeys.ItemsPage3.value()),
-                    stored_data_key(ctx.team, ctx.slot, DataKeys.ItemsPageSub.value())
-                ])
+                ctx.set_notify(
+                    stored_data_key(ctx.team, ctx.slot, DataKeys.ItemsPage1.value),
+                    stored_data_key(ctx.team, ctx.slot, DataKeys.ItemsPage2.value),
+                    stored_data_key(ctx.team, ctx.slot, DataKeys.ItemsPage3.value),
+                    stored_data_key(ctx.team, ctx.slot, DataKeys.ItemsPageSub.value)
+                )
 
     async def game_watcher(self, ctx) -> None:
         if not ctx.server or not ctx.server.socket.open or ctx.server.socket.closed:
@@ -106,11 +106,11 @@ class TailsAdvClient(BizHawkClient):
         current_health = session_state_data[DataKeys.CurrentHealth][0]
 
         # Ensure game inventory is correct when on map screen        
-        if ctx.room_id != room_id and room_id == WORLD_MAP_ID:
-            items_page_1 = int(ctx.stored_data.get(stored_data_key(ctx.team, ctx.slot, DataKeys.ItemsPage1.value()), 0))
-            items_page_2 = int(ctx.stored_data.get(stored_data_key(ctx.team, ctx.slot, DataKeys.ItemsPage2.value()), 0))
-            items_page_3 = int(ctx.stored_data.get(stored_data_key(ctx.team, ctx.slot, DataKeys.ItemsPage3.value()), 0))
-            items_page_sub = int(ctx.stored_data.get(stored_data_key(ctx.team, ctx.slot, DataKeys.ItemsPageSub.value()), 0))
+        if ctx.current_level_id != level_id and level_id == WORLD_MAP_ID:
+            items_page_1 = int(ctx.stored_data.get(stored_data_key(ctx.team, ctx.slot, DataKeys.ItemsPage1.value), 0))
+            items_page_2 = int(ctx.stored_data.get(stored_data_key(ctx.team, ctx.slot, DataKeys.ItemsPage2.value), 0))
+            items_page_3 = int(ctx.stored_data.get(stored_data_key(ctx.team, ctx.slot, DataKeys.ItemsPage3.value), 0))
+            items_page_sub = int(ctx.stored_data.get(stored_data_key(ctx.team, ctx.slot, DataKeys.ItemsPageSub.value), 0))
             keys = [(loc_data[0], loc_data[1], "RAM")
                     for loc_data in persisted_state_data_locations.values()]
             data = [items_page_1, items_page_2, items_page_3, items_page_sub]
@@ -132,13 +132,13 @@ class TailsAdvClient(BizHawkClient):
             page, bit = item_page_bit_map[id]
             match page:
                 case 1:
-                    page = DataKeys.ItemsPage1.value()
+                    page = DataKeys.ItemsPage1.value
                 case 2:
-                    page = DataKeys.ItemsPage2.value()
+                    page = DataKeys.ItemsPage2.value
                 case 3:
-                    page = DataKeys.ItemsPage3.value()
+                    page = DataKeys.ItemsPage3.value
                 case 4:                    
-                    page = DataKeys.ItemsPageSub.value()
+                    page = DataKeys.ItemsPageSub.value
                 case _:
                     return
             await ctx.send_msgs([{
@@ -159,12 +159,12 @@ class TailsAdvClient(BizHawkClient):
                 "operations": [{ "operation": "replace", "value": value }]
             }
         messages = []
-        if ctx.level_id != level_id:
-            messages.append(set_data_message(DataKeys.LevelID.value(), level_id))
-            ctx.level_id = level_id
-        if ctx.room_id != room_id:
-            messages.append(set_data_message(DataKeys.RoomID.value(), room_id))
-            ctx.room_id = room_id
+        if ctx.current_level_id != level_id:
+            messages.append(set_data_message(DataKeys.LevelID.value, level_id))
+            ctx.current_level_id = level_id
+        if ctx.current_room_id != room_id:
+            messages.append(set_data_message(DataKeys.RoomID.value, room_id))
+            ctx.current_room_id = room_id
         if len(messages) > 0:
             await ctx.send_msgs(messages)
         
