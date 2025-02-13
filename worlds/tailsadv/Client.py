@@ -14,6 +14,7 @@ def stored_data_key(team: int, slot: int, key: str) -> str:
 
 logger = logging.getLogger("Client")
 
+RAM_LABEL = "Main RAM"
 SENTINEL_VALUE = 0xff
 WORLD_MAP_ID = 16
 
@@ -21,7 +22,7 @@ DataKeys = Enum("DataKeys", [
     ("ItemsPage1", "items_page_1"),
     ("ItemsPage2", "items_page_2"),
     ("ItemsPage3", "items_page_3"),
-    ("ItemsPageSub", "items_page+sub"),
+    ("ItemsPageSub", "items_page_sub"),
     ("ItemObtained", "item_obtained"),
     ("ItemPickup", "item_pickup"),
     ("CurrentHealth", "current_health"),
@@ -84,21 +85,13 @@ class TailsAdvClient(BizHawkClient):
         if not ctx.server or not ctx.server.socket.open or ctx.server.socket.closed:
             return
         
-        # Read important RAM values
-        persisted_data = await bizhawk.read(ctx.bizhawk_ctx, [(loc_data[0], loc_data[1], "RAM")
-                                                              for loc_data in persisted_state_data_locations.values()])
-        session_state_data = await bizhawk.read(ctx.bizhawk_ctx, [(loc_data[0], loc_data[1], "RAM")
-                                                                  for loc_data in session_state_data_locations.values()])
-        persisted_data = {data_set_name: data_name
-                          for data_set_name, data_name
-                          in zip(persisted_state_data_locations.keys(), persisted_data)}
+        # Read session state values
+        session_state_data = await bizhawk.read(ctx.bizhawk_ctx, [(loc_data[0], loc_data[1], RAM_LABEL)
+                                                                  for loc_data
+                                                                  in session_state_data_locations.values()])
         session_state_data = {data_set_name: data_name
                               for data_set_name, data_name
                               in zip(session_state_data_locations.keys(), session_state_data)}
-        items_page_1 = persisted_data[DataKeys.ItemsPage1][0]
-        items_page_2 = persisted_data[DataKeys.ItemsPage2][0]
-        items_page_3 = persisted_data[DataKeys.ItemsPage3][0]
-        items_page_sub = persisted_data[DataKeys.ItemsPageSub][0]
         item_obtained = session_state_data[DataKeys.ItemObtained][0]
         item_pickup = session_state_data[DataKeys.ItemPickup][0]
         level_id = session_state_data[DataKeys.LevelID][0]
@@ -107,14 +100,14 @@ class TailsAdvClient(BizHawkClient):
 
         # Ensure game inventory is correct when on map screen        
         if ctx.current_level_id != level_id and level_id == WORLD_MAP_ID:
-            items_page_1 = int(ctx.stored_data.get(stored_data_key(ctx.team, ctx.slot, DataKeys.ItemsPage1.value), 0))
-            items_page_2 = int(ctx.stored_data.get(stored_data_key(ctx.team, ctx.slot, DataKeys.ItemsPage2.value), 0))
-            items_page_3 = int(ctx.stored_data.get(stored_data_key(ctx.team, ctx.slot, DataKeys.ItemsPage3.value), 0))
-            items_page_sub = int(ctx.stored_data.get(stored_data_key(ctx.team, ctx.slot, DataKeys.ItemsPageSub.value), 0))
-            keys = [(loc_data[0], loc_data[1], "RAM")
-                    for loc_data in persisted_state_data_locations.values()]
+            items_page_1 = ctx.stored_data.get(stored_data_key(ctx.team, ctx.slot, DataKeys.ItemsPage1.value)) or 0
+            items_page_2 = ctx.stored_data.get(stored_data_key(ctx.team, ctx.slot, DataKeys.ItemsPage2.value)) or 0
+            items_page_3 = ctx.stored_data.get(stored_data_key(ctx.team, ctx.slot, DataKeys.ItemsPage3.value)) or 0
+            items_page_sub = ctx.stored_data.get(stored_data_key(ctx.team, ctx.slot, DataKeys.ItemsPageSub.value)) or 0
             data = [items_page_1, items_page_2, items_page_3, items_page_sub]
-            await bizhawk.write(zip(keys, data))
+            await bizhawk.write(ctx.bizhawk_ctx, [(loc_data[0], [value], RAM_LABEL)
+                                                  for value, loc_data
+                                                  in zip(data, persisted_state_data_locations.values())])
 
         # Process location check
         if item_pickup == SENTINEL_VALUE and item_obtained:
@@ -128,7 +121,6 @@ class TailsAdvClient(BizHawkClient):
         while ctx.current_index < len(ctx.items_received):
             id = ctx.items_received[ctx.current_index].item
             ctx.current_index += 1
-
             page, bit = item_page_bit_map[id]
             match page:
                 case 1:
