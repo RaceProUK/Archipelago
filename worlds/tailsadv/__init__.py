@@ -7,8 +7,8 @@ from typing import List
 from BaseClasses import ItemClassification, Region, Tutorial
 from worlds.AutoWorld import World, WebWorld
 
-from .Items import TailsAdvItem, item_data_table, item_table
-from .Locations import TailsAdvLocation, location_data_table, location_table
+from .Items import TailsAdvItem, item_data_table, item_table, item_groups
+from .Locations import TailsAdvLocation, location_data_table, location_table, location_groups
 from .Options import TailsAdvOptions, tailsadv_option_groups
 from .Regions import region_data_table
 from .Rules import set_rules
@@ -49,6 +49,8 @@ class TailsAdvWorld(World):
     options_dataclass = TailsAdvOptions
     location_name_to_id = location_table
     item_name_to_id = item_table
+    location_name_groups = location_groups
+    item_name_groups = item_groups
 
     def create_item(self, name: str) -> TailsAdvItem:
         return TailsAdvItem(name, item_data_table[name].type, item_data_table[name].code, self.player)

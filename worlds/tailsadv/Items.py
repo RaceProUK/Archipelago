@@ -52,3 +52,45 @@ item_data_table: Dict[str, TailsAdvItemData] = {
 item_table = {
     name: data.code for name, data in item_data_table.items()
 }
+
+item_groups = {
+    "Field Equipment": {
+        "Regular Bomb",
+        "Large Bomb",
+        "Remote Bomb",
+        "Napalm Bomb",
+        "Triple Bomb",
+        "Wrench",
+        "Helmet",
+        "Item Radar",
+        "Radio",
+        "Hammer",
+        "Teleport Device",
+        "Night Vision",
+        "Speed Boots",
+        "Super Glove",
+        "Fang",
+        "Knuckles",
+        "Sonic",
+        "Remote Robot"
+    },
+    "Submarine Equipment": {
+        "Proton Torpedo",
+        "Vulcan Gun",
+        "Extra Speed",
+        "Extra Armor",
+        "Anti Air Missile",
+        "Spark",
+        "Mine",
+        "Rocket Booster"
+    },
+    "Chaos Emeralds": {
+        "Blue Chaos Emerald",
+        "Green Chaos Emerald",
+        "Purple Chaos Emerald",
+        "Red Chaos Emerald",
+        "White Chaos Emerald",
+        "Yellow Chaos Emerald"
+    },
+    "Filler": { "Ring" }
+}
