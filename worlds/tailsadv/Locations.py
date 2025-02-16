@@ -59,7 +59,7 @@ location_groups = {
     "Cavern Island": { "Anti Air Missile", "Mine", "Napalm Bomb" },
     "Green Island": { "Extra Speed", "Night Vision", "White Chaos Emerald" },
     "Caron Forest": { "Blue Chaos Emerald", "Proton Torpedo", "Sonic", "Triple Bomb" },
-    "Lake Crystal": {},
+    #"Lake Crystal": {},
     "Polly Mountain 2": { "Fang", "Item Radar", "Large Bomb" },
     "Coco Island": { "Teleport Device", "Yellow Chaos Emerald" },
     #"Battle Fortress 1": {},
