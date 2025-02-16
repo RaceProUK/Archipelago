@@ -50,17 +50,18 @@ location_table = {
     name: data.code for name, data in location_data_table.items()
 }
 
+# Commented out groups may be useful later
 location_groups = {
     "Poloy Forest": { "Red Chaos Emerald", "Radio", "Remote Robot", "Spark", "Speed Boots" },
     "Volcanic Tunnel": { "Extra Armor", "Green Chaos Emerald", "Hammer", "Remote Bomb" },
     "Polly Mountain 1": { "Helmet", "Knuckles", "Purple Chaos Emerald", "Super Glove", "Rocket Booster" },
-    "Lake Rocky": {},
+    #"Lake Rocky": {},
     "Cavern Island": { "Anti Air Missile", "Mine", "Napalm Bomb" },
     "Green Island": { "Extra Speed", "Night Vision", "White Chaos Emerald" },
     "Caron Forest": { "Blue Chaos Emerald", "Proton Torpedo", "Sonic", "Triple Bomb" },
     "Lake Crystal": {},
     "Polly Mountain 2": { "Fang", "Item Radar", "Large Bomb" },
     "Coco Island": { "Teleport Device", "Yellow Chaos Emerald" },
-    "Battle Fortress 1": {},
+    #"Battle Fortress 1": {},
     "Battle Fortress 2": { "Wrench" }
 }
