@@ -9,7 +9,7 @@ from enum import Enum
 from typing import List
 
 from worlds.AutoWorld import World
-from worlds.Files import APProcedurePatch, APPatchExtension
+from worlds.Files import APProcedurePatch, APPatchExtension, InvalidDataError
 
 logger = logging.getLogger("ROM")
 
@@ -33,7 +33,7 @@ class TailsAdvPatcher(APPatchExtension):
             case ROMType.Origins.value:
                 return TailsAdvPatcher.origins_to_original(rom)
             case _:
-                raise Exception(f"Supplied base ROM does not match any known MD5 for Tails Adventure (hash of supplied ROM: {md5})")
+                raise InvalidDataError(f"Supplied base ROM does not match any known MD5 for Tails Adventure (hash of supplied ROM: {md5})")
     
     @staticmethod
     def rom_to_ap(rom: bytes) -> bytes:
@@ -78,4 +78,4 @@ def load_base_rom(md5s: List[str], file_name: str = "") -> bytes:
     if md5 in md5s:
         return rom
     else:
-        raise Exception(f"Supplied base ROM does not match any known MD5 for Tails Adventure (hash of supplied ROM: {md5})")
+        raise InvalidDataError(f"Supplied base ROM does not match any known MD5 for Tails Adventure (hash of supplied ROM: {md5})")

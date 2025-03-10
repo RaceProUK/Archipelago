@@ -119,9 +119,9 @@ class TailsAdvClient(BizHawkClient):
 
         # Process received items
         while ctx.current_index < len(ctx.items_received):
-            id = ctx.items_received[ctx.current_index].item
+            item_id = ctx.items_received[ctx.current_index].item
             ctx.current_index += 1
-            page, bit = item_page_bit_map[id]
+            page, bit = item_page_bit_map[item_id]
             match page:
                 case 1:
                     page = DataKeys.ItemsPage1.value
@@ -142,7 +142,7 @@ class TailsAdvClient(BizHawkClient):
             }])
 
         # Save session state data on the server        
-        def set_data_message(key: str, value: int) -> None:
+        def set_data_message(key: str, value: int) -> dict:
             return {
                 "cmd": "Set",
                 "key": stored_data_key(ctx.team, ctx.slot, key),
