@@ -98,7 +98,13 @@ class TailsAdvClient(BizHawkClient):
         room_id = session_state_data[DataKeys.RoomID][0]
         current_health = session_state_data[DataKeys.CurrentHealth][0]
 
-        # Ensure game inventory is correct when on map screen        
+        await self.__set_correct_inventory(ctx, level_id)
+        await self.__process_location_check(ctx, item_obtained, item_pickup)
+        await self.__process_received_items(ctx)
+        await self.__save_session_state_to_server(ctx, level_id, room_id)
+        await self.__check_goal_condition(ctx, current_health)
+
+    async def __set_correct_inventory(self, ctx, level_id):
         if ctx.current_level_id != level_id and level_id == WORLD_MAP_ID:
             items_page_1 = ctx.stored_data.get(stored_data_key(ctx.team, ctx.slot, DataKeys.ItemsPage1.value)) or 0
             items_page_2 = ctx.stored_data.get(stored_data_key(ctx.team, ctx.slot, DataKeys.ItemsPage2.value)) or 0
@@ -109,15 +115,15 @@ class TailsAdvClient(BizHawkClient):
                                                   for value, loc_data
                                                   in zip(data, persisted_state_data_locations.values())])
 
-        # Process location check
+    async def __process_location_check(self, ctx, item_obtained, item_pickup):
         if item_pickup == SENTINEL_VALUE and item_obtained:
-            # The Chaos Emeralds have IDs from 27 to 32 in AP and 32 to 37 in the game, hence the conversion
             await ctx.send_msgs([{
                 "cmd": "LocationChecks",
+                # The Chaos Emeralds have IDs from 27 to 32 in AP and 32 to 37 in the game, hence the conversion
                 "locations": [item_obtained - 5 if 32 <= item_obtained <= 37 else item_obtained]
             }])
 
-        # Process received items
+    async def __process_received_items(self, ctx):
         while ctx.current_index < len(ctx.items_received):
             item_id = ctx.items_received[ctx.current_index].item
             ctx.current_index += 1
@@ -132,7 +138,7 @@ class TailsAdvClient(BizHawkClient):
                 case 4:                    
                     page = DataKeys.ItemsPageSub.value
                 case _:
-                    return
+                    continue
             await ctx.send_msgs([{
                 "cmd": "Set",
                 "key": stored_data_key(ctx.team, ctx.slot, page),
@@ -141,7 +147,7 @@ class TailsAdvClient(BizHawkClient):
                 "operations": [{ "operation": "or", "value": (1 << bit) }]
             }])
 
-        # Save session state data on the server        
+    async def __save_session_state_to_server(self, ctx, level_id, room_id):
         def set_data_message(key: str, value: int) -> dict:
             return {
                 "cmd": "Set",
@@ -159,8 +165,8 @@ class TailsAdvClient(BizHawkClient):
             ctx.current_room_id = room_id
         if len(messages) > 0:
             await ctx.send_msgs(messages)
-        
-        # Check for goal condition - current health is set to SENTINEL_VALUE when the game is beaten
+
+    async def __check_goal_condition(self, ctx, current_health):
         if current_health == SENTINEL_VALUE and not ctx.finished_game:
             await ctx.send_msgs([{"cmd": "StatusUpdate", "status": ClientStatus.CLIENT_GOAL}])
             ctx.finished_game = True
