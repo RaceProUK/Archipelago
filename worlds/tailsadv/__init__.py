@@ -58,14 +58,17 @@ class TailsAdvWorld(World):
     def create_items(self) -> None:
         item_pool: List[TailsAdvItem] = []
 
+        # Add all placeable items and push precollected items
         for name, item in item_data_table.items():
-            # Add normal items to pool
-            if item.can_create:
-                item_pool.append(self.create_item(name))
-            
-            # Push pre-collected items
             if item.start_with:
                 self.multiworld.push_precollected(self.create_item(name))
+            elif item.can_create and name not in self.options.start_inventory:
+                item_pool.append(self.create_item(name))
+        
+        # Add required filler
+        location_count = len({location_data for location_data in location_data_table.values() if location_data.can_create})
+        item_count = len(item_pool)
+        item_pool += [self.create_filler() for _ in range(item_count, location_count)]
 
         self.multiworld.itempool += item_pool
     
@@ -75,7 +78,7 @@ class TailsAdvWorld(World):
             region = Region(region_key.name, self.player, self.multiworld)
             self.multiworld.regions.append(region)
 
-        # Create locations
+        # Add locations to regions and connect the latter
         for region_key, region_data in region_data_table.items():
             region = self.get_region(region_key.name)
             region.add_locations({
