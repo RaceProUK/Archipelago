@@ -62,7 +62,7 @@ class TailsAdvWorld(World):
         for name, item in item_data_table.items():
             if item.start_with:
                 self.multiworld.push_precollected(self.create_item(name))
-            elif item.can_create and name not in self.options.start_inventory:
+            elif item.singleton and name not in self.options.start_inventory:
                 item_pool.append(self.create_item(name))
         
         # Add required filler
@@ -93,7 +93,7 @@ class TailsAdvWorld(World):
         filler_items = list(name
                              for name, data
                              in item_data_table.items()
-                             if data.type == ItemClassification.filler)
+                             if data.type == ItemClassification.filler and not data.singleton)
         return self.multiworld.random.choice(filler_items)
     
     def set_rules(self) -> None:

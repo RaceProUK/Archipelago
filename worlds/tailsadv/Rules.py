@@ -18,6 +18,7 @@ def set_rules(player: int, multiworld: MultiWorld, options: TailsAdvOptions) -> 
     has_extra_armor: CollectionRule = lambda state: state.has("Extra Armor", player)
     has_rocket_booster: CollectionRule = lambda state: state.has("Rocket Booster", player)
     has_night_vision: CollectionRule = lambda state: state.has("Night Vision", player)
+    has_enough_emeralds: CollectionRule = lambda state: state.has_group("Chaos Emeralds", player, options.required_emerald_count)
 
     # Regions
     set_rule(multiworld.get_entrance("Menu -> LakeRocky", player), has_remote_robot)
@@ -30,7 +31,7 @@ def set_rules(player: int, multiworld: MultiWorld, options: TailsAdvOptions) -> 
     set_rule(multiworld.get_entrance("LakeRocky -> GreenIsland", player), has_anti_air)
     set_rule(multiworld.get_entrance("LakeRocky -> LakeCrystal", player), has_extra_speed)
     set_rule(multiworld.get_entrance("LakeRocky -> CocoIsland", player),
-             lambda state: has_mine(state) and has_extra_armor(state))
+             lambda state: has_mine(state) and has_extra_armor(state) and has_enough_emeralds(state))
     
     set_rule(multiworld.get_entrance("CocoIsland -> BattleFortress1", player), has_rocket_booster)
 
