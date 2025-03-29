@@ -14,6 +14,8 @@ def stored_data_key(team: int, slot: int, key: str) -> str:
 
 logger = logging.getLogger("Client")
 
+PatchedRomSHA1 = "62998f9e56655ed18c127f0194e41371de86cc82"
+
 RAM_LABEL = "Main RAM"
 SENTINEL_VALUE = 0xff
 WORLD_MAP_ID = 16
@@ -55,11 +57,7 @@ class TailsAdvClient(BizHawkClient):
     game = "Tails Adventure"
 
     async def validate_rom(self, ctx) -> bool:
-        if ctx.rom_hash.lower() in [
-            ROMType.Original.value,
-            ROMType.VC3DS.value,
-            ROMType.Origins.value
-        ]:
+        if ctx.rom_hash.lower() == PatchedRomSHA1:
             ctx.game = self.game
             ctx.items_handling = 0b111
             ctx.finished_game = False

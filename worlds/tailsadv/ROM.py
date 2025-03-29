@@ -42,7 +42,22 @@ class TailsAdvPatcher(APPatchExtension):
         # Specifically, 0x1217 is the operand to the opcode at 0x1216
         # The full Z80 instruction is `sub $01`, which we patch to `sub $00`
         # Did you know Tails Adventure has a life system? You do now!
-        # rom[0x1217] = 0x00
+        rom[0x01217] = 0x00
+
+        # Disable the game's default item pickup handling placing the item in the inventory
+        # Instead, inventory will be managed by Archipelago via data storage
+        rom[0x352ad] = 0x00
+        rom[0x352ae] = 0x00
+        rom[0x352af] = 0x00
+        rom[0x352c3] = 0x00
+        rom[0x352c4] = 0x00
+        rom[0x352c5] = 0x00
+        rom[0x352c6] = 0x00
+        rom[0x352c7] = 0x00
+        rom[0x352c8] = 0x00
+        rom[0x352c9] = 0x00
+        rom[0x352ca] = 0x00
+        rom[0x352cb] = 0x00
         return bytes(rom)
     
     @staticmethod
