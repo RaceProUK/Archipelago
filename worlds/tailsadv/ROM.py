@@ -45,7 +45,7 @@ class TailsAdvPatcher(APPatchExtension):
         rom[0x01217] = 0x00
 
         # Disable the game's default item pickup handling placing the item in the inventory
-        # Instead, inventory will be managed by Archipelago via data storage
+        # Instead, inventory will be managed by Archipelago via data storage and the BizHawk connector
         rom[0x352ad] = 0x00
         rom[0x352ae] = 0x00
         rom[0x352af] = 0x00
