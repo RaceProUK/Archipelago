@@ -39,25 +39,23 @@ class TailsAdvPatcher(APPatchExtension):
     def rom_to_ap(rom: bytes) -> bytes:
         rom = bytearray(rom)
         # Disable Game Over screen by deducting zero from the life count on death
-        # Specifically, 0x1217 is the operand to the opcode at 0x1216
-        # The full Z80 instruction is `sub $01`, which we patch to `sub $00`
+        rom[0x01217] = 0x00 # sub $01 => sub $00 (patches operand)
         # Did you know Tails Adventure has a life system? You do now!
-        rom[0x01217] = 0x00
 
         # Disable the game's default item pickup handling placing the item in the inventory
         # Instead, inventory will be managed by Archipelago via data storage and the BizHawk connector
-        rom[0x352ad] = 0x00
-        rom[0x352ae] = 0x00
-        rom[0x352af] = 0x00
-        rom[0x352c3] = 0x00
-        rom[0x352c4] = 0x00
-        rom[0x352c5] = 0x00
-        rom[0x352c6] = 0x00
-        rom[0x352c7] = 0x00
-        rom[0x352c8] = 0x00
-        rom[0x352c9] = 0x00
-        rom[0x352ca] = 0x00
-        rom[0x352cb] = 0x00
+        rom[0x352ad] = 0x00 # call $93c5 => nop (disables adding to current inventory and updating max health and flight meter)
+        rom[0x352ae] = 0x00 #            => nop
+        rom[0x352af] = 0x00 #            => nop
+        rom[0x352c3] = 0x00 # inc hl     => nop (disables adding to inventory in Tails' House)
+        rom[0x352c4] = 0x00 # ld e, (hl) => nop
+        rom[0x352c5] = 0x00 # inc hl     => nop
+        rom[0x352c6] = 0x00 # ld d, (hl) => nop
+        rom[0x352c7] = 0x00 # inc hl     => nop
+        rom[0x352c8] = 0x00 # ld b, (hl) => nop
+        rom[0x352c9] = 0x00 # ld a, (de) => nop
+        rom[0x352ca] = 0x00 # or b       => nop
+        rom[0x352cb] = 0x00 # ld (de), a => nop
         return bytes(rom)
     
     @staticmethod
