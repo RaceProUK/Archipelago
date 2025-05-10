@@ -4,8 +4,7 @@ from enum import Enum
 
 from NetUtils import ClientStatus
 from worlds._bizhawk.client import BizHawkClient
-from .Items import item_data_table
-from .ROM import ROMType
+from .Items import item_data_table, item_groups
 
 import worlds._bizhawk as bizhawk
 
@@ -21,6 +20,10 @@ SENTINEL_VALUE = 0xff
 WORLD_MAP_ID = 16
 
 DataKeys = Enum("DataKeys", [
+    ("SelectedItem1", "selected_item_1"),
+    ("SelectedItem2", "selected_item_2"),
+    ("SelectedItem3", "selected_item_3"),
+    ("SelectedItem4", "selected_item_4"),
     ("ItemsPage1", "items_page_1"),
     ("ItemsPage2", "items_page_2"),
     ("ItemsPage3", "items_page_3"),
@@ -40,6 +43,10 @@ persisted_state_data_locations = {
 }
 
 session_state_data_locations = {
+    DataKeys.SelectedItem1: (0x1020, 0x01),
+    DataKeys.SelectedItem2: (0x1021, 0x01),
+    DataKeys.SelectedItem3: (0x1022, 0x01),
+    DataKeys.SelectedItem4: (0x1023, 0x01),
     DataKeys.ItemObtained: (0x1037, 0x01),
     DataKeys.CurrentHealth: (0x1039, 0x01),
     DataKeys.LevelID: (0x12aa, 0x01),
@@ -98,7 +105,7 @@ class TailsAdvClient(BizHawkClient):
 
         await self.__set_correct_inventory(ctx, level_id)
         await self.__process_location_check(ctx, item_obtained, item_pickup)
-        await self.__process_received_items(ctx)
+        await self.__process_received_items(ctx, session_state_data)
         await self.__save_session_state_to_server(ctx, level_id, room_id)
         await self.__check_goal_condition(ctx, current_health)
 
@@ -121,10 +128,17 @@ class TailsAdvClient(BizHawkClient):
                 "locations": [item_obtained - 5 if 32 <= item_obtained <= 37 else item_obtained]
             }])
 
-    async def __process_received_items(self, ctx):
+    async def __process_received_items(self, ctx, session_state_data):
+        selected_item_1 = session_state_data[DataKeys.SelectedItem1][0]
+        selected_item_2 = session_state_data[DataKeys.SelectedItem2][0]
+        selected_item_3 = session_state_data[DataKeys.SelectedItem3][0]
+        selected_item_4 = session_state_data[DataKeys.SelectedItem4][0]
         while ctx.current_index < len(ctx.items_received):
             item_id = ctx.items_received[ctx.current_index].item
+            item_name = ctx.item_names.lookup_in_game(item_id)
             ctx.current_index += 1
+
+            # Update persisted inventory
             page, bit = item_page_bit_map[item_id]
             match page:
                 case 1:
@@ -144,6 +158,28 @@ class TailsAdvClient(BizHawkClient):
                 "want_reply": True,
                 "operations": [{ "operation": "or", "value": (1 << bit) }]
             }])
+
+            if item_name in item_groups["Field Equipment"] or item_name in item_groups["Submarine Equipment"]:
+                # If field/Sea Fox item, add to current inventory
+                if not selected_item_1:
+                    selected_item_1 = item_id
+                    await bizhawk.write(ctx.bizhawk_ctx, [(session_state_data_locations[DataKeys.SelectedItem1][0], selected_item_1, RAM_LABEL)])
+                elif not selected_item_2:
+                    selected_item_2 = item_id
+                    await bizhawk.write(ctx.bizhawk_ctx, [(session_state_data_locations[DataKeys.SelectedItem2][0], selected_item_2, RAM_LABEL)])
+                elif not selected_item_3:
+                    selected_item_3 = item_id
+                    await bizhawk.write(ctx.bizhawk_ctx, [(session_state_data_locations[DataKeys.SelectedItem3][0], selected_item_3, RAM_LABEL)])
+                elif not selected_item_4:
+                    selected_item_4 = item_id
+                    await bizhawk.write(ctx.bizhawk_ctx, [(session_state_data_locations[DataKeys.SelectedItem4][0], selected_item_4, RAM_LABEL)])
+            elif item_name in item_groups["Chaos Emeralds"]:
+                # If Chaos Emerald, heal and increase max health and flight meter
+                pass
+            else:
+                match item_name:
+                    case "Ring":
+                        pass
 
     async def __save_session_state_to_server(self, ctx, level_id, room_id):
         def set_data_message(key: str, value: int) -> dict:
