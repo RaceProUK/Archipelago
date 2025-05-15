@@ -83,17 +83,17 @@ class TailsAdvWorld(World):
             region = self.get_region(region_key.name)
             region.add_locations({
                 location_name: location_data.code
-                  for location_name, location_data
-                  in location_data_table.items()
-                  if location_data.can_create and location_data.region == region_key
+                for location_name, location_data
+                in location_data_table.items()
+                if location_data.can_create and location_data.region == region_key
             }, TailsAdvLocation)
             region.add_exits(list(region.name for region in region_data.connecting_regions))
     
     def get_filler_item_name(self) -> str:
         filler_items = list(name
-                             for name, data
-                             in item_data_table.items()
-                             if data.type == ItemClassification.filler and not data.singleton)
+                            for name, data
+                            in item_data_table.items()
+                            if data.type == ItemClassification.filler and not data.singleton)
         return self.multiworld.random.choice(filler_items)
     
     def set_rules(self) -> None:
