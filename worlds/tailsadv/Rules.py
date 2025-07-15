@@ -18,7 +18,7 @@ def set_rules(player: int, multiworld: MultiWorld, options: TailsAdvOptions) -> 
     has_extra_armor: CollectionRule = lambda state: state.has("Extra Armor", player)
     has_rocket_booster: CollectionRule = lambda state: state.has("Rocket Booster", player)
     has_night_vision: CollectionRule = lambda state: state.has("Night Vision", player)
-    has_enough_emeralds: CollectionRule = lambda state: state.has_group("Chaos Emeralds", player, options.required_emerald_count)
+    has_enough_emeralds: CollectionRule = lambda state: state.has_group("Chaos Emeralds", player, options.required_emerald_count.value)
 
     # Regions
     set_rule(multiworld.get_entrance("Menu -> LakeRocky", player), has_remote_robot)

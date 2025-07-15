@@ -4,7 +4,7 @@ import typing
 
 from typing import List
 
-from BaseClasses import ItemClassification, Region, Tutorial
+from BaseClasses import Item, ItemClassification, Region, Tutorial
 from worlds.AutoWorld import World, WebWorld
 
 from .Items import TailsAdvItem, item_data_table, item_table, item_groups
@@ -44,8 +44,8 @@ class TailsAdvWorld(World):
     """Tails Adventure (テイルスアドベンチャー) is a mini-Metroidvania starring Miles 'Tails' Prower, released in 1995 for the Sega Game Gear"""
     game = "Tails Adventure"
     web = TailsAdvWebWorld()
-    settings: typing.ClassVar[TailsAdvSettings]
-    options: TailsAdvOptions
+    settings: typing.ClassVar[TailsAdvSettings] # type: ignore
+    options: TailsAdvOptions # type: ignore
     options_dataclass = TailsAdvOptions
     location_name_to_id = location_table
     item_name_to_id = item_table
@@ -56,7 +56,7 @@ class TailsAdvWorld(World):
         return TailsAdvItem(name, item_data_table[name].type, item_data_table[name].code, self.player)
     
     def create_items(self) -> None:
-        item_pool: List[TailsAdvItem] = []
+        item_pool: List[Item|TailsAdvItem] = []
 
         # Add all placeable items and push precollected items
         for name, item in item_data_table.items():
@@ -87,13 +87,13 @@ class TailsAdvWorld(World):
                 in location_data_table.items()
                 if location_data.can_create and location_data.region == region_key
             }, TailsAdvLocation)
-            region.add_exits(list(region.name for region in region_data.connecting_regions))
+            region.add_exits([region.name for region in region_data.connecting_regions])
     
     def get_filler_item_name(self) -> str:
-        filler_items = list(name
-                            for name, data
-                            in item_data_table.items()
-                            if data.type == ItemClassification.filler and not data.singleton)
+        filler_items = [name
+                        for name, data
+                        in item_data_table.items()
+                        if data.type == ItemClassification.filler and not data.singleton]
         return self.multiworld.random.choice(filler_items)
     
     def set_rules(self) -> None:
