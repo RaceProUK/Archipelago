@@ -2,6 +2,7 @@ from enum import Enum
 from typing import TYPE_CHECKING
 
 from NetUtils import ClientStatus
+from worlds._bizhawk import ConnectionStatus, RequestFailedError
 from worlds._bizhawk.client import BizHawkClient
 from .Items import item_data_table, item_groups
 
@@ -93,25 +94,32 @@ class TailsAdvClient(BizHawkClient):
                 )
 
     async def game_watcher(self, ctx: "BizHawkClientContext") -> None:
-        if not ctx.server or not ctx.server.socket.open or ctx.server.socket.closed:
+        connected_to_ap = ctx.server and ctx.server.socket.open
+        connected_to_bizhawk = ctx.bizhawk_ctx.connection_status == ConnectionStatus.CONNECTED
+        if not connected_to_ap or connected_to_bizhawk:
             return
         
-        # Read session state values
-        session_state_data = await bizhawk.read(ctx.bizhawk_ctx, [(loc_data[0], loc_data[1], RAM_LABEL)
-                                                                  for loc_data
-                                                                  in session_state_data_locations.values()])
-        session_state_data = dict(zip(session_state_data_locations.keys(), session_state_data))
-        item_obtained = session_state_data[DataKeys.ItemObtained][0]
-        item_pickup = session_state_data[DataKeys.ItemPickup][0]
-        level_id = session_state_data[DataKeys.LevelID][0]
-        room_id = session_state_data[DataKeys.RoomID][0]
-        current_health = session_state_data[DataKeys.CurrentHealth][0]
+        try:
+            # Read session state values
+            session_state_data = await bizhawk.read(ctx.bizhawk_ctx, [(loc_data[0], loc_data[1], RAM_LABEL)
+                                                                      for loc_data
+                                                                      in session_state_data_locations.values()])
+            session_state_data = dict(zip(session_state_data_locations.keys(), session_state_data))
+            item_obtained = session_state_data[DataKeys.ItemObtained][0]
+            item_pickup = session_state_data[DataKeys.ItemPickup][0]
+            level_id = session_state_data[DataKeys.LevelID][0]
+            room_id = session_state_data[DataKeys.RoomID][0]
+            current_health = session_state_data[DataKeys.CurrentHealth][0]
 
-        await self.__set_correct_inventory(ctx, level_id)
-        await self.__process_location_check(ctx, item_obtained, item_pickup)
-        await self.__process_received_items(ctx, session_state_data)
-        await self.__save_session_state_to_server(ctx, level_id, room_id)
-        await self.__check_goal_condition(ctx, current_health)
+            await self.__set_correct_inventory(ctx, level_id)
+            await self.__process_location_check(ctx, item_obtained, item_pickup)
+            await self.__process_received_items(ctx, session_state_data)
+            await self.__save_session_state_to_server(ctx, level_id, room_id)
+            await self.__check_goal_condition(ctx, current_health)
+        except RequestFailedError as rfe:
+            logger.warning(f"Unable to synchronise game state: {rfe.args[0]}")
+            logger.warning("Please wait until the connection to BizHawk is restored")
+            return
 
     async def __set_correct_inventory(self, ctx: "BizHawkClientContext", level_id):
         if self.current_level_id != level_id and level_id == WORLD_MAP_ID:
