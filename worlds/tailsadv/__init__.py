@@ -2,7 +2,7 @@ import os
 import settings
 import typing
 
-from typing import List
+from typing import Any, List, Mapping
 
 from BaseClasses import Item, ItemClassification, Region, Tutorial
 from worlds.AutoWorld import World, WebWorld
@@ -98,6 +98,12 @@ class TailsAdvWorld(World):
     
     def set_rules(self) -> None:
         set_rules(self.player, self.multiworld, self.options)
+
+    def fill_slot_data(self) -> Mapping[str, Any]:
+        return {
+            "RequiredEmeraldCount": self.options.required_emerald_count.value,
+            "RequireNightVision": self.options.require_nvg.value
+        }
     
     def generate_output(self, output_directory) -> None:
         patch = TailsAdvPatch(player = self.player, player_name = self.player_name)
