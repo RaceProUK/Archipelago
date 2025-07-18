@@ -37,7 +37,7 @@ def set_rules(player: int, multiworld: MultiWorld, options: TailsAdvOptions) -> 
 
     set_rule(multiworld.get_entrance("BattleFortress1 -> BattleFortress2", player), has_remote_bomb)
     
-    if options.require_nvg:
+    if options.require_nvg.value:
         set_rule(multiworld.get_entrance("LakeCrystal -> PollyMountain2", player), has_night_vision)
     
     # Locations
