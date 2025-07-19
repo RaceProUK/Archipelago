@@ -67,7 +67,7 @@ class TailsAdvClient(BizHawkClient):
     patch_suffix = ".aptailsadv"
     game = "Tails Adventure"
     current_level_id: int|None
-    current_room_id: int|None
+    current_area_id: int|None
     current_index: int
 
     async def validate_rom(self, ctx: "BizHawkClientContext") -> bool:
@@ -76,7 +76,7 @@ class TailsAdvClient(BizHawkClient):
             ctx.items_handling = 0b111
             ctx.finished_game = False
             self.current_level_id = None
-            self.current_room_id = None
+            self.current_area_id = None
             self.current_index = 0
             return True
         return False
@@ -96,7 +96,7 @@ class TailsAdvClient(BizHawkClient):
     async def game_watcher(self, ctx: "BizHawkClientContext") -> None:
         connected_to_ap = ctx.server and ctx.server.socket.open
         connected_to_bizhawk = ctx.bizhawk_ctx.connection_status == ConnectionStatus.CONNECTED
-        if not connected_to_ap or connected_to_bizhawk:
+        if not connected_to_ap or not connected_to_bizhawk:
             return
         
         try:
@@ -114,7 +114,7 @@ class TailsAdvClient(BizHawkClient):
             await self.__set_correct_inventory(ctx, level_id)
             await self.__process_location_check(ctx, item_obtained, item_pickup)
             await self.__process_received_items(ctx, session_state_data)
-            await self.__save_session_state_to_server(ctx, level_id, room_id)
+            await self.__send_map_update(ctx, level_id, room_id)
             await self.__check_goal_condition(ctx, current_health)
         except RequestFailedError as rfe:
             logger.warning(f"Unable to synchronise game state: {rfe.args[0]}")
@@ -192,24 +192,15 @@ class TailsAdvClient(BizHawkClient):
                 # Give Tails a ring
                 pass
 
-    async def __save_session_state_to_server(self, ctx: "BizHawkClientContext", level_id, room_id):
-        def set_data_message(key: str, value: int) -> dict:
-            return {
-                "cmd": "Set",
-                "key": stored_data_key(ctx.team, ctx.slot, key),
-                "default": 0,
-                "want_reply": False,
-                "operations": [{ "operation": "replace", "value": value }]
-            }
-        messages = []
-        if self.current_level_id != level_id:
-            messages.append(set_data_message(DataKeys.LevelID.value, level_id))
+    async def __send_map_update(self, ctx: "BizHawkClientContext", level_id, area_id):
+        if self.current_level_id != level_id or self.current_area_id != area_id:
             self.current_level_id = level_id
-        if self.current_room_id != room_id:
-            messages.append(set_data_message(DataKeys.RoomID.value, room_id))
-            self.current_room_id = room_id
-        if len(messages) > 0:
-            await ctx.send_msgs(messages)
+            self.current_area_id = area_id
+            await ctx.send_msgs([{
+                "cmd": "Bounce",
+                "slots": [ctx.slot],
+                "data": { "level": level_id, "area": area_id }
+            }])
 
     async def __check_goal_condition(self, ctx: "BizHawkClientContext", current_health):
         if current_health == SENTINEL_VALUE and not ctx.finished_game:
