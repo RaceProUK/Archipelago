@@ -12,7 +12,7 @@ class TailsAdvLocationData(NamedTuple):
     can_create: bool = True
 
 location_data_table: Dict[str, TailsAdvLocationData] = {
-    "Regular Bomb": TailsAdvLocationData(1, TailsAdvRegion.Menu, can_create=False),
+    "Regular Bomb": TailsAdvLocationData(1, TailsAdvRegion.Menu, can_create = False),
     "Large Bomb": TailsAdvLocationData(2, TailsAdvRegion.PollyMountain2),
     "Remote Bomb": TailsAdvLocationData(3, TailsAdvRegion.VolcanicTunnel),
     "Napalm Bomb": TailsAdvLocationData(4, TailsAdvRegion.CavernIsland),
@@ -30,7 +30,7 @@ location_data_table: Dict[str, TailsAdvLocationData] = {
     "Knuckles": TailsAdvLocationData(16, TailsAdvRegion.PollyMountain1),
     "Sonic": TailsAdvLocationData(17, TailsAdvRegion.CaronForest),
     "Proton Torpedo": TailsAdvLocationData(18, TailsAdvRegion.CaronForest),
-    "Vulcan Gun": TailsAdvLocationData(19, TailsAdvRegion.Menu, can_create=False),
+    "Vulcan Gun": TailsAdvLocationData(19, TailsAdvRegion.Menu, can_create = False),
     "Extra Speed": TailsAdvLocationData(20, TailsAdvRegion.GreenIsland),
     "Extra Armor": TailsAdvLocationData(21, TailsAdvRegion.VolcanicTunnel),
     "Anti Air Missile": TailsAdvLocationData(22, TailsAdvRegion.CavernIsland),

@@ -17,11 +17,11 @@ def stored_data_key(team: int|None, slot: int|None, key: str) -> str:
 
 logger = logging.getLogger("Client")
 
-PatchedRomSHA1 = "62998f9e56655ed18c127f0194e41371de86cc82"
+PatchedRomSHA1: str = "62998f9e56655ed18c127f0194e41371de86cc82"
 
-RAM_LABEL = "Main RAM"
-SENTINEL_VALUE = 0xff
-WORLD_MAP_ID = 16
+RAM_LABEL: str = "Main RAM"
+SENTINEL_VALUE: int = 0xff
+WORLD_MAP_ID: int = 16
 
 DataKeys = Enum("DataKeys", [
     ("SelectedItem1", "selected_item_1"),

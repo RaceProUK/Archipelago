@@ -14,7 +14,7 @@ class TailsAdvItemData(NamedTuple):
     singleton: bool = True
 
 item_data_table: Dict[str, TailsAdvItemData] = {
-    "Regular Bomb": TailsAdvItemData(1, 1, 7, ItemClassification.progression, start_with=True),
+    "Regular Bomb": TailsAdvItemData(1, 1, 7, ItemClassification.progression, start_with = True),
     "Large Bomb": TailsAdvItemData(2, 1, 6, ItemClassification.progression),
     "Remote Bomb": TailsAdvItemData(3, 1, 5, ItemClassification.progression),
     "Napalm Bomb": TailsAdvItemData(4, 1, 4, ItemClassification.progression),
@@ -32,7 +32,7 @@ item_data_table: Dict[str, TailsAdvItemData] = {
     "Knuckles": TailsAdvItemData(16, 2, 1, ItemClassification.useful),
     "Sonic": TailsAdvItemData(17, 2, 0, ItemClassification.useful),
     "Proton Torpedo": TailsAdvItemData(18, 4, 7, ItemClassification.progression),
-    "Vulcan Gun": TailsAdvItemData(19, 4, 6, ItemClassification.progression, start_with=True),
+    "Vulcan Gun": TailsAdvItemData(19, 4, 6, ItemClassification.progression, start_with = True),
     "Extra Speed": TailsAdvItemData(20, 4, 5, ItemClassification.progression),
     "Extra Armor": TailsAdvItemData(21, 4, 4, ItemClassification.progression),
     "Anti Air Missile": TailsAdvItemData(22, 4, 3, ItemClassification.progression),
@@ -46,7 +46,7 @@ item_data_table: Dict[str, TailsAdvItemData] = {
     "Red Chaos Emerald": TailsAdvItemData(30, 3, 2, ItemClassification.progression),
     "White Chaos Emerald": TailsAdvItemData(31, 3, 1, ItemClassification.progression),
     "Yellow Chaos Emerald": TailsAdvItemData(32, 3, 0, ItemClassification.progression),
-    "Ring": TailsAdvItemData(33, 0, 0, ItemClassification.filler, singleton=False)
+    "Ring": TailsAdvItemData(33, 0, 0, ItemClassification.filler, singleton = False)
 }
 
 item_table = {

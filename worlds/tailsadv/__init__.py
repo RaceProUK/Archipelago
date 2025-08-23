@@ -30,12 +30,12 @@ class TailsAdvSettings(settings.Group):
 class TailsAdvWebWorld(WebWorld):
     theme = "grass"
     setup_en = Tutorial(
-        tutorial_name="Start Guide",
-        description="A guide to setting up the Tails Adventure randomizer connected to an Archipelago Multiworld.",
-        language="English",
-        file_name="guide_en.md",
-        link="guide/en",
-        authors=["RaceProUK"]
+        tutorial_name = "Start Guide",
+        description = "A guide to setting up the Tails Adventure randomizer connected to an Archipelago Multiworld.",
+        language = "English",
+        file_name = "guide_en.md",
+        link = "guide/en",
+        authors = ["RaceProUK"]
     )
     tutorials = [setup_en]
     option_groups = tailsadv_option_groups
