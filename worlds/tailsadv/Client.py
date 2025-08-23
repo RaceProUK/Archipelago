@@ -33,13 +33,14 @@ DataKeys = Enum("DataKeys", [
     ("ItemsPage3", "items_page_3"),
     ("ItemsPageSub", "items_page_sub"),
     ("ItemObtained", "item_obtained"),
-    ("ItemPickup", "item_pickup"),
     ("MaximumHealth", "maximum_health"),
-    ("CurrentHealth", "current_health"),
+    ("RespawnHealth", "respawn_health"),
     ("EmeraldCount", "emerald_count"),
     ("FlightTime", "flight_time"),
     ("LevelID", "level_id"),
-    ("RoomID", "room_id")
+    ("RoomID", "room_id"),
+    ("ItemPickup", "item_pickup"),
+    ("CurrentHealth", "current_health"),
 ])
 
 persisted_state_data_locations: dict[DataKeys, tuple[int, int]] = {
@@ -59,27 +60,39 @@ session_state_data_locations: dict[DataKeys, tuple[int, int]] = {
     DataKeys.SelectedItem4: (0x1023, 0x01),
     DataKeys.ItemObtained: (0x1037, 0x01),
     DataKeys.MaximumHealth: (0x1038, 0x01),
-    DataKeys.CurrentHealth: (0x1039, 0x01),
+    DataKeys.RespawnHealth: (0x1039, 0x01),
     DataKeys.EmeraldCount: (0x103a, 0x01),
     DataKeys.FlightTime: (0x103c, 0x01),
     DataKeys.LevelID: (0x12aa, 0x01),
     DataKeys.RoomID: (0x12ab, 0x01),
-    DataKeys.ItemPickup: (0x12f5, 0x01)
+    DataKeys.ItemPickup: (0x12f5, 0x01),
+    DataKeys.CurrentHealth: (0x1526, 0x01),
 }
 
 item_page_bit_map: dict[int, tuple[int, int]] = {
     data.code: (data.page, data.bit) for data in item_data_table.values()
 }
 
+# Health uses BCD, flight time does not
 health_flight_map: dict[int, tuple[int, int]] = {
-    0: (10, 2),
-    1: (20, 4),
-    2: (30, 6),
-    3: (40, 8),
-    4: (50, 10),
-    5: (60, 11),
-    6: (99, 12),
+    0: (0x10, 2),
+    1: (0x20, 4),
+    2: (0x30, 6),
+    3: (0x40, 8),
+    4: (0x50, 10),
+    5: (0x60, 11),
+    6: (0x99, 12),
 }
+
+def bcd_to_int(i: int) -> int:
+    h = i >> 4
+    l = i & 0x0f
+    return 10 * h + l
+
+def int_to_bcd(i: int) -> int:
+    q = i // 10
+    r = i % 10
+    return r + q * 16
 
 class TailsAdvClient(BizHawkClient):
     system = "GG"
@@ -131,13 +144,13 @@ class TailsAdvClient(BizHawkClient):
             item_pickup = session_state_data[DataKeys.ItemPickup]
             level_id = session_state_data[DataKeys.LevelID]
             room_id = session_state_data[DataKeys.RoomID]
-            current_health = session_state_data[DataKeys.CurrentHealth]
+            respawn_health = session_state_data[DataKeys.RespawnHealth]
 
             await self.__set_correct_inventory(ctx, level_id)
             await self.__process_location_check(ctx, item_obtained, item_pickup)
             await self.__process_received_items(ctx, session_state_data)
             await self.__send_map_update(ctx, level_id, room_id)
-            await self.__check_goal_condition(ctx, current_health)
+            await self.__check_goal_condition(ctx, respawn_health)
         except RequestFailedError as rfe:
             logger.warning(f"Unable to synchronise game state: {rfe.args[0]}")
             logger.warning("Please wait until the connection to BizHawk is restored")
@@ -222,8 +235,8 @@ class TailsAdvClient(BizHawkClient):
         if emerald_count < 6:
             emerald_count += 1
             (new_health, new_flight) = health_flight_map[emerald_count]
-            keys = [DataKeys.MaximumHealth, DataKeys.CurrentHealth, DataKeys.EmeraldCount, DataKeys.FlightTime]
-            data = [new_health, new_health, emerald_count, new_flight]
+            keys = [DataKeys.MaximumHealth, DataKeys.RespawnHealth, DataKeys.EmeraldCount, DataKeys.FlightTime, DataKeys.CurrentHealth]
+            data = [new_health, new_health, emerald_count, new_flight, new_health]
             await bizhawk.write(ctx.bizhawk_ctx, [(session_state_data_locations[loc_data][0], [value], RAM_LABEL)
                                                   for value, loc_data
                                                   in zip(data, keys)])
@@ -250,11 +263,11 @@ class TailsAdvClient(BizHawkClient):
             }])
 
     async def __heal(self, ctx: "BizHawkClientContext", session_state_data: dict[DataKeys, int]):
-        maximum_health = session_state_data[DataKeys.MaximumHealth]
-        current_health = session_state_data[DataKeys.CurrentHealth]
+        maximum_health = bcd_to_int(session_state_data[DataKeys.MaximumHealth])
+        current_health = bcd_to_int(session_state_data[DataKeys.CurrentHealth])
         if current_health < maximum_health:
             current_health += 1
-            await bizhawk.write(ctx.bizhawk_ctx, [(session_state_data_locations[DataKeys.CurrentHealth][0], [current_health], RAM_LABEL)])
+            await bizhawk.write(ctx.bizhawk_ctx, [(session_state_data_locations[DataKeys.CurrentHealth][0], [int_to_bcd(current_health)], RAM_LABEL)])
 
     async def __send_map_update(self, ctx: "BizHawkClientContext", level_id: int, area_id: int):
         if self.current_level_id != level_id or self.current_area_id != area_id:
@@ -266,7 +279,7 @@ class TailsAdvClient(BizHawkClient):
                 "data": { "level": level_id, "area": area_id }
             }])
 
-    async def __check_goal_condition(self, ctx: "BizHawkClientContext", current_health: int):
-        if current_health == SENTINEL_VALUE and not ctx.finished_game:
+    async def __check_goal_condition(self, ctx: "BizHawkClientContext", respawn_health: int):
+        if respawn_health == SENTINEL_VALUE and not ctx.finished_game:
             await ctx.send_msgs([{"cmd": "StatusUpdate", "status": ClientStatus.CLIENT_GOAL}])
             ctx.finished_game = True
