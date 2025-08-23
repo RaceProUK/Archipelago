@@ -126,7 +126,7 @@ class TailsAdvClient(BizHawkClient):
             session_state_data = await bizhawk.read(ctx.bizhawk_ctx, [(loc_data[0], loc_data[1], RAM_LABEL)
                                                                       for loc_data
                                                                       in session_state_data_locations.values()])
-            session_state_data = dict(zip(session_state_data_locations.keys(), session_state_data[0]))
+            session_state_data = dict(zip(session_state_data_locations.keys(), (d[0] for d in session_state_data)))
             item_obtained = session_state_data[DataKeys.ItemObtained]
             item_pickup = session_state_data[DataKeys.ItemPickup]
             level_id = session_state_data[DataKeys.LevelID]
