@@ -42,11 +42,15 @@ class TailsAdvPatcher(APPatchExtension):
         rom[0x01217] = 0x00 # sub $01 => sub $00 (patches operand)
         # Did you know Tails Adventure has a life system? You do now!
 
+        # Disable the check that hides collected items
+        # This ensures that we can still do a location check even if we have the vanilla item
+        rom[0x352a2] = 0xc9 # ret z => ret
+
         # Disable the game's default item pickup handling placing the item in the inventory
         # Instead, inventory will be managed by Archipelago via data storage and the BizHawk connector
         rom[0x352ad] = 0x00 # call $93c5 => nop (disables adding to current inventory and updating max health and flight meter)
-        rom[0x352ae] = 0x00 #            => nop
-        rom[0x352af] = 0x00 #            => nop
+        rom[0x352ae] = 0x00 #               nop
+        rom[0x352af] = 0x00 #               nop
         rom[0x352c3] = 0x00 # inc hl     => nop (disables adding to inventory in Tails' House)
         rom[0x352c4] = 0x00 # ld e, (hl) => nop
         rom[0x352c5] = 0x00 # inc hl     => nop

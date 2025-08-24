@@ -14,7 +14,7 @@ import worlds._bizhawk as bizhawk
 
 logger = logging.getLogger("Client")
 
-PatchedRomSHA1: str = "62998f9e56655ed18c127f0194e41371de86cc82"
+PatchedRomSHA1: str = "3f5b03c8494f06c5de37fb36cf9a052cf3ecd0c5"
 
 RAM_LABEL: str = "Main RAM"
 SENTINEL_VALUE: int = 0xff
@@ -215,7 +215,7 @@ class TailsAdvClient(BizHawkClient):
             item_id = ctx.items_received[self.current_index].item
             item_name = ctx.item_names.lookup_in_game(item_id)
             self.current_index += 1
-            
+
             await self.__update_persisted_inventory(ctx, item_id)
             if item_name in item_groups["Field Equipment"] and self.current_level_id not in sea_fox_levels:
                 await self.__update_selected_inventory(ctx, session_state_data, item_id, FIELD_EQUIP_OFFSET)
