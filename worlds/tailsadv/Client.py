@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from NetUtils import ClientStatus
 from worlds._bizhawk import ConnectionStatus, RequestFailedError
@@ -27,6 +27,7 @@ DataKeys = Enum("DataKeys", [
     ("SelectedItem2", "selected_item_2"),
     ("SelectedItem3", "selected_item_3"),
     ("SelectedItem4", "selected_item_4"),
+    ("ProgressionFlags", "progression_flags"),
     ("ItemsPage1", "items_page_1"),
     ("ItemsPage2", "items_page_2"),
     ("ItemsPage3", "items_page_3"),
@@ -142,17 +143,20 @@ class TailsAdvClient(BizHawkClient):
         
         try:
             # Read session state values
-            session_state_data = await bizhawk.read(ctx.bizhawk_ctx, [(loc_data[0], loc_data[1], RAM_LABEL)
-                                                                      for loc_data
+            session_state_data = await bizhawk.read(ctx.bizhawk_ctx, [(location[0], location[1], RAM_LABEL)
+                                                                      for location
                                                                       in session_state_data_locations.values()])
-            session_state_data = dict(zip(session_state_data_locations.keys(), (d[0] for d in session_state_data)))
+            session_state_data = dict(zip(session_state_data_locations.keys(), (data[0] for data in session_state_data)))
             item_obtained = session_state_data[DataKeys.ItemObtained]
             item_pickup = session_state_data[DataKeys.ItemPickup]
             level_id = session_state_data[DataKeys.LevelID]
             room_id = session_state_data[DataKeys.RoomID]
             respawn_health = session_state_data[DataKeys.RespawnHealth]
 
-            await self.__set_correct_inventory(ctx, level_id)
+            if self.current_level_id != level_id and level_id == WORLD_MAP_ID:
+                await self.__update_progression(ctx)
+                await self.__set_correct_inventory(ctx)
+
             await self.__process_location_check(ctx, item_obtained, item_pickup)
             await self.__process_received_items(ctx, session_state_data)
             await self.__send_map_update(ctx, level_id, room_id)
@@ -162,19 +166,39 @@ class TailsAdvClient(BizHawkClient):
             logger.warning("Please wait until the connection to BizHawk is restored")
             return
 
-    async def __set_correct_inventory(self, ctx: "BizHawkClientContext", level_id: int):
-        if self.current_level_id != level_id and level_id == WORLD_MAP_ID:
-            items_page_1 = ctx.stored_data.get(stored_data_key(ctx.team, ctx.slot, DataKeys.ItemsPage1.value)) or 0
-            items_page_2 = ctx.stored_data.get(stored_data_key(ctx.team, ctx.slot, DataKeys.ItemsPage2.value)) or 0
-            items_page_3 = ctx.stored_data.get(stored_data_key(ctx.team, ctx.slot, DataKeys.ItemsPage3.value)) or 0
-            items_page_sub = ctx.stored_data.get(stored_data_key(ctx.team, ctx.slot, DataKeys.ItemsPageSub.value)) or 0
-            maximum_health = ctx.stored_data.get(stored_data_key(ctx.team, ctx.slot, DataKeys.MaximumHealth.value)) or 0
-            emerald_count = ctx.stored_data.get(stored_data_key(ctx.team, ctx.slot, DataKeys.EmeraldCount.value)) or 0
-            flight_time = ctx.stored_data.get(stored_data_key(ctx.team, ctx.slot, DataKeys.FlightTime.value)) or 0
-            data = [items_page_1, items_page_2, items_page_3, items_page_sub, maximum_health, emerald_count, flight_time]
-            await bizhawk.write(ctx.bizhawk_ctx, [(loc_data[0], [value], RAM_LABEL)
-                                                  for value, loc_data
-                                                  in zip(data, persisted_state_data_locations.values())])
+    async def __update_progression(self, ctx: "BizHawkClientContext"):
+        address: int = 0x102c
+        length: int = 3
+        byteorder: str = "little"
+        key = stored_data_key(ctx.team, ctx.slot, DataKeys.ProgressionFlags.value)
+
+        progression_data = await bizhawk.read(ctx.bizhawk_ctx, [(address, length, RAM_LABEL)])
+        current_progression = int.from_bytes(progression_data[0], byteorder = byteorder)
+        saved_progression = int(ctx.stored_data.get(key) or 0)
+
+        if current_progression > saved_progression:
+            await ctx.send_msgs([{
+                "cmd": "Set",
+                "key": key,
+                "default": 0,
+                "want_reply": False,
+                "operations": [{ "operation": "replace", "value": current_progression }]
+            }])
+        elif saved_progression > current_progression:
+            await bizhawk.write(ctx.bizhawk_ctx, [(address, int.to_bytes(saved_progression, length, byteorder = byteorder), RAM_LABEL)])
+
+    async def __set_correct_inventory(self, ctx: "BizHawkClientContext"):
+        items_page_1 = int(ctx.stored_data.get(stored_data_key(ctx.team, ctx.slot, DataKeys.ItemsPage1.value)) or 0)
+        items_page_2 = int(ctx.stored_data.get(stored_data_key(ctx.team, ctx.slot, DataKeys.ItemsPage2.value)) or 0)
+        items_page_3 = int(ctx.stored_data.get(stored_data_key(ctx.team, ctx.slot, DataKeys.ItemsPage3.value)) or 0)
+        items_page_sub = int(ctx.stored_data.get(stored_data_key(ctx.team, ctx.slot, DataKeys.ItemsPageSub.value)) or 0)
+        maximum_health = int(ctx.stored_data.get(stored_data_key(ctx.team, ctx.slot, DataKeys.MaximumHealth.value)) or 0)
+        emerald_count = int(ctx.stored_data.get(stored_data_key(ctx.team, ctx.slot, DataKeys.EmeraldCount.value)) or 0)
+        flight_time = int(ctx.stored_data.get(stored_data_key(ctx.team, ctx.slot, DataKeys.FlightTime.value)) or 0)
+        data = [items_page_1, items_page_2, items_page_3, items_page_sub, maximum_health, emerald_count, flight_time]
+        await bizhawk.write(ctx.bizhawk_ctx, [(location[0], [value], RAM_LABEL)
+                                              for value, location
+                                              in zip(data, persisted_state_data_locations.values())])
 
     async def __process_location_check(self, ctx: "BizHawkClientContext", item_obtained: int, item_pickup: int):
         if item_pickup == SENTINEL_VALUE and item_obtained:
@@ -253,8 +277,8 @@ class TailsAdvClient(BizHawkClient):
             (new_health, new_flight) = health_flight_map[emerald_count]
             keys = [DataKeys.MaximumHealth, DataKeys.RespawnHealth, DataKeys.EmeraldCount, DataKeys.FlightTime, DataKeys.CurrentHealth]
             data = [new_health, new_health, emerald_count, new_flight, new_health]
-            await bizhawk.write(ctx.bizhawk_ctx, [(session_state_data_locations[loc_data][0], [value], RAM_LABEL)
-                                                  for value, loc_data
+            await bizhawk.write(ctx.bizhawk_ctx, [(session_state_data_locations[location][0], [value], RAM_LABEL)
+                                                  for value, location
                                                   in zip(data, keys)])
             await ctx.send_msgs([{
                 "cmd": "Set",
