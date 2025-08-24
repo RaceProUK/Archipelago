@@ -126,6 +126,7 @@ class TailsAdvClient(BizHawkClient):
                 ctx.seed_name = args["seed_name"]
             case "Connected":
                 ctx.set_notify(
+                    stored_data_key(ctx.team, ctx.slot, DataKeys.ProgressionFlags.value),
                     stored_data_key(ctx.team, ctx.slot, DataKeys.ItemsPage1.value),
                     stored_data_key(ctx.team, ctx.slot, DataKeys.ItemsPage2.value),
                     stored_data_key(ctx.team, ctx.slot, DataKeys.ItemsPage3.value),
@@ -181,7 +182,7 @@ class TailsAdvClient(BizHawkClient):
                 "cmd": "Set",
                 "key": key,
                 "default": 0,
-                "want_reply": False,
+                "want_reply": True,
                 "operations": [{ "operation": "replace", "value": current_progression }]
             }])
         elif saved_progression > current_progression:
@@ -284,21 +285,21 @@ class TailsAdvClient(BizHawkClient):
                 "cmd": "Set",
                 "key": stored_data_key(ctx.team, ctx.slot, DataKeys.MaximumHealth.value),
                 "default": 0,
-                "want_reply": False,
+                "want_reply": True,
                 "operations": [{ "operation": "replace", "value": new_health }]
             },
             {
                 "cmd": "Set",
                 "key": stored_data_key(ctx.team, ctx.slot, DataKeys.EmeraldCount.value),
                 "default": 0,
-                "want_reply": False,
+                "want_reply": True,
                 "operations": [{ "operation": "replace", "value": emerald_count }]
             },
             {
                 "cmd": "Set",
                 "key": stored_data_key(ctx.team, ctx.slot, DataKeys.FlightTime.value),
                 "default": 0,
-                "want_reply": False,
+                "want_reply": True,
                 "operations": [{ "operation": "replace", "value": new_flight }]
             }])
 
