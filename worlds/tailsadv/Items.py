@@ -49,11 +49,11 @@ item_data_table: Dict[str, TailsAdvItemData] = {
     "Ring": TailsAdvItemData(33, 0, 0, ItemClassification.filler, singleton = False)
 }
 
-item_table = {
+item_table: Dict[str, int] = {
     name: data.code for name, data in item_data_table.items()
 }
 
-item_groups = {
+item_groups: Dict[str, set[str]] = {
     "Field Equipment": {
         "Regular Bomb",
         "Large Bomb",

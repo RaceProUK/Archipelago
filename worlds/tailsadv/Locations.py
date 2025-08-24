@@ -46,12 +46,12 @@ location_data_table: Dict[str, TailsAdvLocationData] = {
     "Yellow Chaos Emerald": TailsAdvLocationData(32, TailsAdvRegion.CocoIsland)
 }
 
-location_table = {
+location_table: Dict[str, int] = {
     name: data.code for name, data in location_data_table.items()
 }
 
 # Commented out groups may be useful later
-location_groups = {
+location_groups: Dict[str, set[str]] = {
     "Poloy Forest": { "Red Chaos Emerald", "Radio", "Remote Robot", "Spark", "Speed Boots" },
     "Volcanic Tunnel": { "Extra Armor", "Green Chaos Emerald", "Hammer", "Remote Bomb" },
     "Polly Mountain 1": { "Helmet", "Knuckles", "Purple Chaos Emerald", "Super Glove", "Rocket Booster" },
