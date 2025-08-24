@@ -22,6 +22,8 @@ PatchedRomSHA1: str = "62998f9e56655ed18c127f0194e41371de86cc82"
 RAM_LABEL: str = "Main RAM"
 SENTINEL_VALUE: int = 0xff
 WORLD_MAP_ID: int = 16
+FIELD_EQUIP_OFFSET: int = 4
+SEA_FOX_EQUIP_OFFSET: int = 4
 
 DataKeys = Enum("DataKeys", [
     ("SelectedItem1", "selected_item_1"),
@@ -58,6 +60,8 @@ session_state_data_locations: dict[DataKeys, tuple[int, int]] = {
     DataKeys.SelectedItem2: (0x1021, 0x01),
     DataKeys.SelectedItem3: (0x1022, 0x01),
     DataKeys.SelectedItem4: (0x1023, 0x01),
+    # Selected Field Equipment is duplicated from 0x1024 to 0x1027
+    # Selected Sea Fox Equipment is duplicated from 0x1028 to 0x102b
     DataKeys.ItemObtained: (0x1037, 0x01),
     DataKeys.MaximumHealth: (0x1038, 0x01),
     DataKeys.RespawnHealth: (0x1039, 0x01),
@@ -72,6 +76,8 @@ session_state_data_locations: dict[DataKeys, tuple[int, int]] = {
 item_page_bit_map: dict[int, tuple[int, int]] = {
     data.code: (data.page, data.bit) for data in item_data_table.values()
 }
+
+sea_fox_levels: list[int] = [6, 7, 11]
 
 # Health uses BCD, flight time does not
 health_flight_map: dict[int, tuple[int, int]] = {
@@ -184,8 +190,10 @@ class TailsAdvClient(BizHawkClient):
             item_name = ctx.item_names.lookup_in_game(item_id)
             self.current_index += 1
             await self.__update_persisted_inventory(ctx, item_id)
-            if item_name in item_groups["Field Equipment"] or item_name in item_groups["Submarine Equipment"]:
-                await self.__update_selected_inventory(ctx, session_state_data, item_id)
+            if item_name in item_groups["Field Equipment"] and self.current_level_id not in sea_fox_levels:
+                await self.__update_selected_inventory(ctx, session_state_data, item_id, FIELD_EQUIP_OFFSET)
+            elif item_name in item_groups["Submarine Equipment"] and self.current_level_id in sea_fox_levels:
+                await self.__update_selected_inventory(ctx, session_state_data, item_id, SEA_FOX_EQUIP_OFFSET)
             elif item_name in item_groups["Chaos Emeralds"]:
                 await self.__update_health_and_flight(ctx, session_state_data)
             elif item_name == "Ring":
@@ -212,23 +220,31 @@ class TailsAdvClient(BizHawkClient):
             "operations": [{ "operation": "or", "value": (1 << bit) }]
         }])
 
-    async def __update_selected_inventory(self, ctx: "BizHawkClientContext", session_state_data: dict[DataKeys, int], item_id: int):
+    async def __update_selected_inventory(self, ctx: "BizHawkClientContext", session_state_data: dict[DataKeys, int], item_id: int, duplicate_offset: int):
         selected_item_1 = session_state_data[DataKeys.SelectedItem1]
         selected_item_2 = session_state_data[DataKeys.SelectedItem2]
         selected_item_3 = session_state_data[DataKeys.SelectedItem3]
         selected_item_4 = session_state_data[DataKeys.SelectedItem4]
         if not selected_item_1:
             selected_item_1 = item_id
-            await bizhawk.write(ctx.bizhawk_ctx, [(session_state_data_locations[DataKeys.SelectedItem1][0], [selected_item_1], RAM_LABEL)])
+            await bizhawk.write(ctx.bizhawk_ctx, [
+                (session_state_data_locations[DataKeys.SelectedItem1][0], [selected_item_1], RAM_LABEL),
+                (session_state_data_locations[DataKeys.SelectedItem1][0] + duplicate_offset, [selected_item_1], RAM_LABEL)])
         elif not selected_item_2:
             selected_item_2 = item_id
-            await bizhawk.write(ctx.bizhawk_ctx, [(session_state_data_locations[DataKeys.SelectedItem2][0], [selected_item_2], RAM_LABEL)])
+            await bizhawk.write(ctx.bizhawk_ctx, [
+                (session_state_data_locations[DataKeys.SelectedItem2][0], [selected_item_2], RAM_LABEL),
+                (session_state_data_locations[DataKeys.SelectedItem2][0] + duplicate_offset, [selected_item_2], RAM_LABEL)])
         elif not selected_item_3:
             selected_item_3 = item_id
-            await bizhawk.write(ctx.bizhawk_ctx, [(session_state_data_locations[DataKeys.SelectedItem3][0], [selected_item_3], RAM_LABEL)])
+            await bizhawk.write(ctx.bizhawk_ctx, [
+                (session_state_data_locations[DataKeys.SelectedItem3][0], [selected_item_3], RAM_LABEL),
+                (session_state_data_locations[DataKeys.SelectedItem3][0] + duplicate_offset, [selected_item_3], RAM_LABEL)])
         elif not selected_item_4:
             selected_item_4 = item_id
-            await bizhawk.write(ctx.bizhawk_ctx, [(session_state_data_locations[DataKeys.SelectedItem4][0], [selected_item_4], RAM_LABEL)])
+            await bizhawk.write(ctx.bizhawk_ctx, [
+                (session_state_data_locations[DataKeys.SelectedItem4][0], [selected_item_4], RAM_LABEL),
+                (session_state_data_locations[DataKeys.SelectedItem4][0] + duplicate_offset, [selected_item_4], RAM_LABEL)])
 
     async def __update_health_and_flight(self, ctx: "BizHawkClientContext", session_state_data: dict[DataKeys, int]):
         emerald_count = session_state_data[DataKeys.EmeraldCount]
