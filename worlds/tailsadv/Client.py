@@ -12,9 +12,6 @@ if TYPE_CHECKING:
 import logging
 import worlds._bizhawk as bizhawk
 
-def stored_data_key(team: int|None, slot: int|None, key: str) -> str:
-    return f"tailsadv_{team}_{slot}_{key}"
-
 logger = logging.getLogger("Client")
 
 PatchedRomSHA1: str = "62998f9e56655ed18c127f0194e41371de86cc82"
@@ -99,6 +96,9 @@ def int_to_bcd(i: int) -> int:
     q = i // 10
     r = i % 10
     return r + q * 16
+
+def stored_data_key(team: int|None, slot: int|None, key: str) -> str:
+    return f"tailsadv_{team}_{slot}_{key}"
 
 class TailsAdvClient(BizHawkClient):
     system = "GG"
