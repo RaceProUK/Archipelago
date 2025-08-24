@@ -189,13 +189,14 @@ class TailsAdvClient(BizHawkClient):
             await bizhawk.write(ctx.bizhawk_ctx, [(address, int.to_bytes(saved_progression, length, byteorder = byteorder), RAM_LABEL)])
 
     async def __set_correct_inventory(self, ctx: "BizHawkClientContext"):
-        items_page_1 = int(ctx.stored_data.get(stored_data_key(ctx.team, ctx.slot, DataKeys.ItemsPage1.value)) or 0)
-        items_page_2 = int(ctx.stored_data.get(stored_data_key(ctx.team, ctx.slot, DataKeys.ItemsPage2.value)) or 0)
-        items_page_3 = int(ctx.stored_data.get(stored_data_key(ctx.team, ctx.slot, DataKeys.ItemsPage3.value)) or 0)
-        items_page_sub = int(ctx.stored_data.get(stored_data_key(ctx.team, ctx.slot, DataKeys.ItemsPageSub.value)) or 0)
-        maximum_health = int(ctx.stored_data.get(stored_data_key(ctx.team, ctx.slot, DataKeys.MaximumHealth.value)) or 0)
-        emerald_count = int(ctx.stored_data.get(stored_data_key(ctx.team, ctx.slot, DataKeys.EmeraldCount.value)) or 0)
-        flight_time = int(ctx.stored_data.get(stored_data_key(ctx.team, ctx.slot, DataKeys.FlightTime.value)) or 0)
+        items_page_1 = int(ctx.stored_data.get(stored_data_key(ctx.team, ctx.slot, DataKeys.ItemsPage1.value)) or 0x00)
+        items_page_2 = int(ctx.stored_data.get(stored_data_key(ctx.team, ctx.slot, DataKeys.ItemsPage2.value)) or 0x00)
+        items_page_3 = int(ctx.stored_data.get(stored_data_key(ctx.team, ctx.slot, DataKeys.ItemsPage3.value)) or 0x00)
+        items_page_sub = int(ctx.stored_data.get(stored_data_key(ctx.team, ctx.slot, DataKeys.ItemsPageSub.value)) or 0x00)
+        maximum_health = int(ctx.stored_data.get(stored_data_key(ctx.team, ctx.slot, DataKeys.MaximumHealth.value)) or health_flight_map[0][0])
+        emerald_count = int(ctx.stored_data.get(stored_data_key(ctx.team, ctx.slot, DataKeys.EmeraldCount.value)) or 0x00)
+        flight_time = int(ctx.stored_data.get(stored_data_key(ctx.team, ctx.slot, DataKeys.FlightTime.value)) or health_flight_map[0][1])
+
         data = [items_page_1, items_page_2, items_page_3, items_page_sub, maximum_health, emerald_count, flight_time]
         await bizhawk.write(ctx.bizhawk_ctx, [(location[0], [value], RAM_LABEL)
                                               for value, location
@@ -214,6 +215,7 @@ class TailsAdvClient(BizHawkClient):
             item_id = ctx.items_received[self.current_index].item
             item_name = ctx.item_names.lookup_in_game(item_id)
             self.current_index += 1
+            
             await self.__update_persisted_inventory(ctx, item_id)
             if item_name in item_groups["Field Equipment"] and self.current_level_id not in sea_fox_levels:
                 await self.__update_selected_inventory(ctx, session_state_data, item_id, FIELD_EQUIP_OFFSET)
