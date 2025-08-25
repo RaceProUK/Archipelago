@@ -17,10 +17,16 @@ logger = logging.getLogger("Client")
 PatchedRomSHA1: str = "8ab1a16bd1bcf261b683680fe3ea556ca7bb7b5f"
 
 RAM_LABEL: str = "Main RAM"
+
 SENTINEL_VALUE: int = 0xff
 WORLD_MAP_ID: int = 16
+
 FIELD_EQUIP_OFFSET: int = 4
 SEA_FOX_EQUIP_OFFSET: int = 4
+
+SOUND_QUEUE_ADDR: int = 0x1e04
+RING_SOUND_ID: int = 0xa8
+ITEM_SOUND_ID: int = 0xc5
 
 DataKeys = Enum("DataKeys", [
     ("SelectedItem1", "selected_item_1"),
@@ -219,12 +225,16 @@ class TailsAdvClient(BizHawkClient):
             await self.__update_persisted_inventory(ctx, item_id)
             if item_name in item_groups["Field Equipment"] and self.current_level_id not in sea_fox_levels:
                 await self.__update_selected_inventory(ctx, session_state_data, item_id, FIELD_EQUIP_OFFSET)
+                await self.__play_item_sound(ctx)
             elif item_name in item_groups["Submarine Equipment"] and self.current_level_id in sea_fox_levels:
                 await self.__update_selected_inventory(ctx, session_state_data, item_id, SEA_FOX_EQUIP_OFFSET)
+                await self.__play_item_sound(ctx)
             elif item_name in item_groups["Chaos Emeralds"]:
                 await self.__update_health_and_flight(ctx, session_state_data)
+                await self.__play_item_sound(ctx)
             elif item_name == "Ring":
                 await self.__heal(ctx, session_state_data)
+                await self.__play_ring_sound(ctx)
 
     async def __update_persisted_inventory(self, ctx: "BizHawkClientContext", item_id: int):
         page, bit = item_page_bit_map[item_id]
@@ -326,3 +336,8 @@ class TailsAdvClient(BizHawkClient):
         if respawn_health == SENTINEL_VALUE and not ctx.finished_game:
             await ctx.send_msgs([{"cmd": "StatusUpdate", "status": ClientStatus.CLIENT_GOAL}])
             ctx.finished_game = True
+
+    async def __play_item_sound(self, ctx: "BizHawkClientContext"): await self.__play_sound(ctx, ITEM_SOUND_ID)
+    async def __play_ring_sound(self, ctx: "BizHawkClientContext"): await self.__play_sound(ctx, RING_SOUND_ID)
+    async def __play_sound(self, ctx: "BizHawkClientContext", sound_index: int):
+        await bizhawk.write(ctx.bizhawk_ctx, [(SOUND_QUEUE_ADDR, [sound_index], RAM_LABEL)])
