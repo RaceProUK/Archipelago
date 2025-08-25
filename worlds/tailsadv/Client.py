@@ -111,9 +111,10 @@ class TailsAdvClient(BizHawkClient):
     system = "GG"
     patch_suffix = ".aptailsadv"
     game = "Tails Adventure"
-    current_level_id: int|None
-    current_area_id: int|None
-    current_index: int
+    current_level_id: int|None = None
+    current_area_id: int|None = None
+    current_index: int = 0
+    received_items: set[int] = set()
 
     async def validate_rom(self, ctx: "BizHawkClientContext") -> bool:
         if (ctx.rom_hash or "").lower() == PatchedRomSHA1:
@@ -222,6 +223,12 @@ class TailsAdvClient(BizHawkClient):
             item_name = ctx.item_names.lookup_in_game(item_id)
             self.current_index += 1
 
+            if item_id in self.received_items:
+                return
+
+            if item_data_table[item_name].singleton:
+                self.received_items.add(item_id)
+
             await self.__update_persisted_inventory(ctx, item_id)
             if item_name in item_groups["Field Equipment"] and self.current_level_id not in sea_fox_levels:
                 await self.__update_selected_inventory(ctx, session_state_data, item_id, FIELD_EQUIP_OFFSET)
@@ -286,7 +293,7 @@ class TailsAdvClient(BizHawkClient):
     async def __update_health_and_flight(self, ctx: "BizHawkClientContext", session_state_data: dict[DataKeys, int]):
         emerald_count = session_state_data[DataKeys.EmeraldCount]
         if emerald_count < 6:
-            emerald_count += 1
+            emerald_count = len([item for item in self.received_items if 27 <= item <= 32])
             (new_health, new_flight) = health_flight_map[emerald_count]
             keys = [DataKeys.MaximumHealth, DataKeys.RespawnHealth, DataKeys.EmeraldCount, DataKeys.FlightTime, DataKeys.CurrentHealth]
             data = [new_health, new_health, emerald_count, new_flight, new_health]
