@@ -14,7 +14,7 @@ import worlds._bizhawk as bizhawk
 
 logger = logging.getLogger("Client")
 
-PatchedRomSHA1: str = "3f5b03c8494f06c5de37fb36cf9a052cf3ecd0c5"
+PatchedRomSHA1: str = "8ab1a16bd1bcf261b683680fe3ea556ca7bb7b5f"
 
 RAM_LABEL: str = "Main RAM"
 SENTINEL_VALUE: int = 0xff
