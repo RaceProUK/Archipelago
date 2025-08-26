@@ -40,7 +40,14 @@ Your YAML file defines all the necessary options that are used when generating a
 
 ### Where can I get a YAML file?
 
-You can generate a YAML template locally, or complete and download a full YAML from [Player Options](/games/Tails%20Adventure/player-options).
+1. Open `ArchipelagoLauncher.exe`
+1. Click `Open` on `Generate Template Options`
+    - A folder window will open with a template for every bundled and installed APWorld
+1. Locate the `Tails Adventure.yaml` and copy it to a convenient location
+1. Open the copied `Tails Adventure.yaml` in a suitable text editor and set your options
+    - It's recommended to use a text editor with YAML syntax highlighting support e.g.
+        - Visual Studio Code with the YAML extension from Red Hat
+        - Notepad++
 
 ## Joining a MultiWorld Game
 
@@ -56,7 +63,7 @@ You can generate a YAML template locally, or complete and download a full YAML f
 1. The BizHawk Client will be automatically started along with the BizHawk emulator
   - If this is your first time opening a patch with the BizHawk Client, you will be asked to locate `EmuHawk.exe`
 
-If you're playing a single-player seed and don't need autotracking or hints, you can close everything and load the ROM in any Game Gear emulator. However, for multiworlds and other Archipelago features, continue with BizHawk and follow the instructions below.
+Due to progression being saved server-side, it is not possible to play a solo world without connecting to a server.
 
 ### Connect to the Multiserver
 
@@ -74,5 +81,7 @@ Normally, steps 1-5 will be performed automatically. However, it's good to be fa
   1. Enter your room's address and port e.g. `archipelago.gg:38281` into the top text box
   1. Check the slot name and password are correct (if not using a password, use `None`)
   1. Click 'Connect'
+
+For best results, connect when the game is either at the title screen or playing the intro sequence.
 
 Once everything is correctly connected and running, there's only one thing left to do: _get gaming!_
