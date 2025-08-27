@@ -48,6 +48,14 @@ def __force_new_game(rom: bytearray) -> None:
     rom[0x0092a] = 0x0e # ld a, $00 => ld a, $0e
     rom[0x0092f] = 0x00 # ld a, $0e => ld a, $00
 
+    # Erase CONTINUE from the screen
+    rom[0x4d4a4] = 0x00 # .data $01 => .data $00
+    rom[0x4d4a5] = 0x00 # .data $02 => .data $00
+    rom[0x4d4a6] = 0x00 # .data $03 => .data $00
+    rom[0x4d4a7] = 0x00 # .data $04 => .data $00
+    rom[0x4d4a8] = 0x00 # .data $05 => .data $00
+    rom[0x4d4a9] = 0x00 # .data $06 => .data $00
+
 # Don't wipe inventory and progression when starting the game
 def __preserve_player_state_on_new_game(rom: bytearray) -> None:
     rom[0x00854] = 0x40 # ld hl, $1010 => ld hl, $1040
