@@ -5,21 +5,14 @@ import bsdiff4
 import pkgutil
 import Utils
 
-from enum import Enum
 from typing import List
 
-from worlds.AutoWorld import World
 from worlds.Files import APProcedurePatch, APPatchExtension, InvalidDataError
 
+from .Settings import TailsAdvSettings, ROMType
 from . import Patches
 
 logger = logging.getLogger("ROM")
-
-ROMType = Enum("ROMType", [
-    ("Original", "a8bdb1beed088ff83c725c5af6b85e1f"), # Also SADX and Gems
-    ("VC3DS", "c2fe111a6e569ec6d58b9ecc32de0e12"),
-    ("Origins", "9a2892a5c14b52d517ec74685365314f")
-])
 
 class TailsAdvPatcher(APPatchExtension):
     game = "Tails Adventure"
@@ -62,18 +55,19 @@ class TailsAdvPatch(APProcedurePatch):
 
     @classmethod
     def get_source_data(cls) -> bytes:
-        return load_base_rom([ROMType.Original.value, ROMType.VC3DS.value, ROMType.Origins.value])
+        from .World import TailsAdvWorld
+        return cls.load_base_rom([ROMType.Original.value, ROMType.VC3DS.value, ROMType.Origins.value], TailsAdvWorld.settings.rom_file)
 
-def load_base_rom(md5s: List[str], file_name: str = "") -> bytes:
-    options = Utils.get_options()
-    if not file_name:
-        file_name = options["tailsadv_options"]["rom_file"]
-    if not os.path.exists(file_name):
-        file_name = Utils.user_path(file_name)
-    with open(file_name, "rb") as file:
-        rom = file.read()
-    md5 = hashlib.md5(rom).hexdigest()
-    if md5 in md5s:
-        return rom
-    else:
-        raise InvalidDataError(f"Supplied base ROM does not match any known MD5 for Tails Adventure (hash of supplied ROM: {md5})")
+    @classmethod
+    def load_base_rom(cls, md5s: List[str], file_name: str) -> bytes:
+        if not file_name or not os.path.exists(file_name):
+            file_name = Utils.user_path(file_name)
+
+        with open(file_name, "rb") as file:
+            rom = file.read()
+
+        md5 = hashlib.md5(rom).hexdigest()
+        if md5 in md5s:
+            return rom
+        else:
+            raise InvalidDataError(f"Supplied base ROM does not match any known MD5 for Tails Adventure (hash of supplied ROM: {md5})")

@@ -93,6 +93,6 @@ class TailsAdvWorld(World):
         }
     
     def generate_output(self, output_directory) -> None:
-        patch = TailsAdvPatch(settings = self.settings, player = self.player, player_name = self.player_name)
+        patch = TailsAdvPatch(player = self.player, player_name = self.player_name)
         out_file_name = self.multiworld.get_out_file_name_base(self.player)
         patch.write(os.path.join(output_directory, f"{out_file_name}{patch.patch_file_ending}"))
