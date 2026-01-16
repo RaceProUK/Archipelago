@@ -126,7 +126,7 @@ class TailsAdvClient(BizHawkClient):
             self.current_index = 0
             return True
         return False
-    
+
     def on_package(self, ctx: "BizHawkClientContext", cmd: str, args: dict) -> None:
         match cmd:
             case "RoomInfo":
@@ -148,7 +148,7 @@ class TailsAdvClient(BizHawkClient):
         connected_to_bizhawk = ctx.bizhawk_ctx.connection_status == ConnectionStatus.CONNECTED
         if not connected_to_ap or not connected_to_bizhawk:
             return
-        
+
         try:
             # Read session state values
             session_state_data = await bizhawk.read(ctx.bizhawk_ctx, [(location[0], location[1], RAM_LABEL)
@@ -252,7 +252,7 @@ class TailsAdvClient(BizHawkClient):
                 page = DataKeys.ItemsPage2.value
             case 3:
                 page = DataKeys.ItemsPage3.value
-            case 4:                    
+            case 4:
                 page = DataKeys.ItemsPageSub.value
             case _:
                 return

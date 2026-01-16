@@ -41,7 +41,7 @@ class TailsAdvWorld(World):
 
     def create_item(self, name: str) -> TailsAdvItem:
         return TailsAdvItem(name, item_data_table[name].type, item_data_table[name].code, self.player)
-    
+
     def create_items(self) -> None:
         item_pool: List[Item|TailsAdvItem] = []
 
@@ -51,14 +51,14 @@ class TailsAdvWorld(World):
                 self.multiworld.push_precollected(self.create_item(name))
             elif item.singleton and name not in self.options.start_inventory:
                 item_pool.append(self.create_item(name))
-        
+
         # Add required filler
         location_count = len({location_data for location_data in location_data_table.values() if location_data.can_create})
         item_count = len(item_pool)
         item_pool += [self.create_filler() for _ in range(item_count, location_count)]
 
         self.multiworld.itempool += item_pool
-    
+
     def create_regions(self) -> None:
         # Create regions
         for region_key in region_data_table.keys():
@@ -75,14 +75,14 @@ class TailsAdvWorld(World):
                 if location_data.can_create and location_data.region == region_key
             }, TailsAdvLocation)
             region.add_exits([region.name for region in region_data.connecting_regions])
-    
+
     def get_filler_item_name(self) -> str:
         filler_items = [name
                         for name, data
                         in item_data_table.items()
                         if data.type == ItemClassification.filler and not data.singleton]
         return self.multiworld.random.choice(filler_items)
-    
+
     def set_rules(self) -> None:
         set_rules(self.player, self.multiworld, self.options)
 
@@ -91,7 +91,7 @@ class TailsAdvWorld(World):
             "RequiredEmeraldCount": self.options.required_emerald_count.value,
             "RequireNightVision": self.options.require_nvg.value
         }
-    
+
     def generate_output(self, output_directory) -> None:
         patch = TailsAdvPatch(player = self.player, player_name = self.player_name)
         out_file_name = self.multiworld.get_out_file_name_base(self.player)

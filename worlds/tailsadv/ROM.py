@@ -29,18 +29,18 @@ class TailsAdvPatcher(APPatchExtension):
                 return TailsAdvPatcher.origins_to_original(rom)
             case _:
                 raise InvalidDataError(f"Supplied base ROM does not match any known MD5 for Tails Adventure (hash of supplied ROM: {md5})")
-    
+
     @staticmethod
     def rom_to_ap(rom: bytes) -> bytes:
         rom = bytearray(rom)
         Patches.apply(rom)
         return bytes(rom)
-    
+
     @staticmethod
     def vc3ds_to_original(rom: bytes) -> bytes:
         patched_rom = bsdiff4.patch(rom, pkgutil.get_data(__name__, "DownPatchVC3DS.bsdiff4"))
         return TailsAdvPatcher.rom_to_ap(patched_rom)
-    
+
     @staticmethod
     def origins_to_original(rom: bytes) -> bytes:
         patched_rom = bsdiff4.patch(rom, pkgutil.get_data(__name__, "DownPatchOrigins.bsdiff4"))
